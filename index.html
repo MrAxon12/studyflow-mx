@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://*.supabase.co; connect-src 'self' https://*.supabase.co wss://*.supabase.co; object-src 'none'; base-uri 'self'; form-action 'self' https://checkout.stripe.com">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="theme-color" content="#6D4AFF">
+<meta name="description" content="Organiza tus tareas, exámenes y repasos con Profe Flow, tu tutor con IA.">
+<title>StudyFlow MX</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="StudyFlow">
+<style>
+:root{--bg:#F7F7F9;--surface:#fff;--text:#1F2330;--muted:#6B7280;--faint:#9CA3AF;--border:#E8E8EE;--brand:#6D4AFF;--brand-d:#5836E0;--brand-soft:#F0ECFF;--ok:#16A34A;--ok-d:#128A3B;--ok-soft:#E7F6EC;--bad:#DC2626;--bad-soft:#FDECEC;--warn:#B45309;--warn-soft:#FEF3E2;--lock:#CBD0DA;--shadow:0 2px 8px rgba(31,35,48,.05);color-scheme:light}
+@media (prefers-color-scheme:dark){:root{--bg:#14151B;--surface:#1D1F27;--text:#ECEDF2;--muted:#9AA0AE;--faint:#6B7280;--border:#2C2F3A;--brand:#9B86FF;--brand-d:#7C66E6;--brand-soft:#2A2547;--ok:#4ADE80;--ok-d:#2FB863;--ok-soft:#173222;--bad:#F87171;--bad-soft:#3A1B1B;--warn:#F5A94B;--warn-soft:#3A2A14;--lock:#3A3E4C;--shadow:none;color-scheme:dark}}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;margin:0}[hidden]{display:none!important}
+body{background:var(--bg);color:var(--text);font:15px/1.5 Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;padding:env(safe-area-inset-top,0) 0 0}
+a{color:var(--brand);text-decoration:none}button,input,select,textarea{font:inherit;color:inherit}button{cursor:pointer}svg{display:block;flex:none}
+h1{font-size:26px;letter-spacing:-.4px;margin:0}h2{font-size:17px;margin:0;letter-spacing:-.2px}p{margin:0 0 6px}
+.muted{color:var(--muted)}.small{font-size:13px}.center{text-align:center;justify-items:center}
+#boot{padding:40px;text-align:center;color:var(--muted)}
+.shell{display:flex;flex-direction:column;height:100%}
+nav{display:flex;background:var(--surface);border-top:1px solid var(--border);padding:6px 4px calc(6px + env(safe-area-inset-bottom,0px));order:2}
+nav .brand{display:none}nav .sideonly{display:none}
+nav button{flex:1;border:0;background:none;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:10.5px;font-weight:500;color:var(--muted);padding:4px 0;border-radius:10px}
+nav button[aria-current=page]{color:var(--brand);font-weight:700}
+main{flex:1;overflow-y:auto;order:1}
+.page{max-width:860px;margin:0 auto;padding:18px 16px 32px;display:grid;gap:14px;animation:in .22s ease-out}
+@keyframes in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.page{animation:none}.node.cur{animation:none}}
+@media (min-width:900px){.shell{flex-direction:row}nav{order:0;flex-direction:column;width:232px;border-top:0;border-right:1px solid var(--border);padding:24px 14px;gap:4px}nav .brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:17px;padding:0 10px 18px}nav .sideonly{display:flex}nav button{flex:none;flex-direction:row;gap:12px;font-size:14px;padding:10px;text-align:left}nav button[aria-current=page]{background:var(--brand-soft)}.page{padding:32px}}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:16px;box-shadow:var(--shadow);display:grid;gap:10px;min-width:0;color:inherit}
+.card.sub{padding:12px;gap:6px;box-shadow:none}.card.nopad{padding:6px 16px;gap:0}.card.errc{background:var(--bad-soft);border-color:var(--bad-soft)}.card.okc{background:var(--ok-soft);border-color:var(--ok-soft)}.card.warnc{background:var(--warn-soft);border-color:var(--warn-soft)}
+a.card{display:grid}
+.row{display:flex;align-items:center;gap:12px}.between{justify-content:space-between}.grow{flex:1;min-width:0}.wrap{flex-wrap:wrap}.end{justify-content:flex-end}.col{display:grid;gap:8px}.top{align-items:flex-start}.base{align-items:baseline}
+.g3{gap:3px}.g4{gap:4px}.g5{gap:5px}.g8{gap:8px}.g12{gap:12px}
+.btn{border:1px solid var(--brand);background:var(--brand);color:#fff;border-radius:12px;min-height:46px;padding:0 18px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:8px;transition:transform .1s,opacity .15s;text-align:center}
+.btn:active{transform:scale(.985);opacity:.9}.btn.sec{background:var(--surface);color:var(--text);border-color:var(--border)}.btn.ghost{background:none;border-color:transparent;color:var(--brand)}.btn.sm{min-height:36px;padding:0 12px;font-size:13px;border-radius:10px}.btn.danger{background:var(--bad);border-color:var(--bad)}.btn[disabled]{opacity:.55;cursor:not-allowed}.danger-t{color:var(--bad)!important}
+.ib{border:0;background:none;width:36px;height:36px;border-radius:8px;display:grid;place-items:center;color:var(--muted);padding:0}.ib.sm{width:22px;height:22px}.ib:hover{background:var(--bg)}
+.chip{border:1px solid var(--border);background:var(--surface);color:var(--muted);border-radius:999px;padding:6px 12px;font-size:13px;font-weight:600;display:inline-flex;align-items:center;gap:6px}.chip[aria-pressed=true],.chip[aria-selected=true]{border-color:var(--brand);background:var(--brand-soft);color:var(--brand)}.chips{display:flex;gap:8px;flex-wrap:wrap}
+label{display:grid;gap:6px;font-size:13px;font-weight:600}
+input,select,textarea{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:11px 14px;min-height:46px;font-weight:400;font-size:16px}textarea{min-height:84px;resize:vertical}
+input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-visible,a:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+.sw{align-items:flex-start;font-weight:400}.sw input{width:22px;min-height:22px;height:22px;margin-top:2px;flex:none}
+.derr{color:var(--bad);font-size:13px;min-height:0}.derr:empty{display:none}.okt{color:var(--ok);font-size:13px}.okt:empty{display:none}
+.task{display:flex;gap:12px;align-items:flex-start;padding:9px 0}.task+.task{border-top:1px solid var(--border)}
+.cb{width:24px;height:24px;border-radius:7px;border:2px solid var(--border);background:none;display:grid;place-items:center;padding:0;margin-top:1px;flex:none}.cb[aria-checked=true]{background:var(--ok);border-color:var(--ok)}.cb.brandc[aria-checked=true]{background:var(--brand);border-color:var(--brand)}
+.done .tt{text-decoration:line-through;color:var(--faint)}.dot{width:9px;height:9px;border-radius:50%;display:inline-block;flex:none}.dot.s{width:6px;height:6px}
+.meta{display:flex;gap:10px;flex-wrap:wrap;font-size:13px;color:var(--muted);align-items:center}.ell{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.empty{display:grid;justify-items:center;text-align:center;gap:8px;padding:18px 8px}.empty .ic{width:56px;height:56px;border-radius:50%;background:var(--brand-soft);display:grid;place-items:center}.empty p{margin:0;max-width:320px}
+.bar{height:8px;border-radius:4px;background:var(--border);overflow:hidden}.bar i{display:block;height:100%;transition:width .3s}
+.rec{background:var(--brand-soft);border-radius:12px;padding:12px;display:flex;gap:10px;align-items:flex-start;color:var(--text)}
+.pill{font-size:12px;font-weight:600;padding:2px 9px;border-radius:999px;background:var(--brand-soft);color:var(--brand)}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);text-align:center;gap:2px}.cal .h{font-size:12px;color:var(--faint)}.cal button{border:0;background:none;height:46px;display:grid;justify-items:center;align-content:center;gap:2px;font-size:14px}.cal button span.n{width:32px;height:32px;border-radius:50%;display:grid;place-items:center}.cal button[aria-pressed=true] span.n{background:var(--brand);color:#fff}.cal button.today span.n{box-shadow:inset 0 0 0 1px var(--brand)}
+.flash{min-height:190px;border-radius:16px;border:1px solid var(--border);background:var(--surface);display:grid;place-items:center;text-align:center;padding:24px;font-size:20px;width:100%;box-shadow:var(--shadow)}
+.bars{display:flex;align-items:flex-end;justify-content:space-between;height:110px;gap:6px}.bars div{flex:1;display:grid;justify-items:center;gap:4px;font-size:12px;color:var(--muted)}.bars i{width:22px;border-radius:6px;display:block}
+.path{display:grid;justify-items:center;gap:18px;padding:10px 0}.nodew{display:grid;justify-items:center;gap:2px}
+.node{width:76px;height:76px;border-radius:50%;border:0;border-bottom:5px solid;display:grid;place-items:center;color:#fff;font-size:24px;font-weight:800}.node.done{background:var(--ok);border-bottom-color:var(--ok-d)}.node.cur{background:var(--brand);border-bottom-color:var(--brand-d);animation:pulse 1.8s ease-in-out infinite}.node.lock{background:var(--border);border-bottom-color:var(--lock);color:var(--faint);cursor:not-allowed}.node.fin{width:92px;height:92px;border-bottom-width:6px}
+@keyframes pulse{50%{box-shadow:0 0 0 8px var(--brand-soft)}}
+.opt{text-align:left;padding:16px;border-radius:12px;border:2px solid var(--border);background:var(--surface);font-size:16px;width:100%}.opt.sel{border-color:var(--brand);background:var(--brand-soft)}.opt.right{border-color:var(--ok);background:var(--ok-soft)}.opt.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.fb{border-radius:16px;padding:16px;display:grid;gap:8px}.fb.ok{background:var(--ok-soft)}.fb.no{background:var(--bad-soft)}
+.badge{width:72px;height:72px;border-radius:50%;display:grid;place-items:center}.okb{background:var(--ok-soft)}.nob{background:var(--bad-soft)}
+.notei{padding:10px 0;border-top:1px solid var(--border)}.notei:first-child{border-top:0}.thumb{width:48px;height:48px;border-radius:12px;background:var(--brand-soft);display:grid;place-items:center;overflow:hidden;flex:none}.thumb img{width:48px;height:48px;object-fit:cover}
+.bubble{max-width:88%;padding:12px;border-radius:16px;display:grid;gap:6px}.bubble.user{justify-self:end;background:var(--brand);color:#fff}.bubble.assistant{justify-self:start;background:var(--surface);border:1px solid var(--border)}.pre{white-space:pre-wrap;word-break:break-word;line-height:1.55}
+.chatbar{position:sticky;bottom:0;background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:10px;display:grid;gap:8px}.chatbar textarea{min-height:46px;max-height:120px;flex:1}
+.strike{text-decoration:line-through;color:var(--faint)}.cmp{display:grid;grid-template-columns:1fr 1fr;gap:4px 12px;font-size:14px}.cmp .b{font-weight:600;color:var(--brand)}
+.authgrid{min-height:100vh;min-height:100dvh;display:grid;grid-template-columns:1fr}.only-d{display:none}
+.brandp{background:#6D4AFF;color:#fff;padding:48px;flex-direction:column;justify-content:space-between;position:relative;overflow:hidden}
+.brandp::before{content:"";position:absolute;width:420px;height:420px;border-radius:50%;background:rgba(255,255,255,.07);right:-140px;top:-120px}.brandp::after{content:"";position:absolute;width:300px;height:300px;border-radius:50%;background:rgba(255,255,255,.06);left:-100px;bottom:-110px}.brandp>*{position:relative;z-index:1}
+.bp-top{font-size:20px}.bp-mid h2{font-size:38px;line-height:1.1;letter-spacing:-1px;margin:0 0 10px}.bp-mid p{font-size:17px;opacity:.9;margin:0 0 28px}.bp-b{margin-bottom:16px}.bp-b .small{opacity:.88}
+.authmain{width:100%;max-width:440px;margin:0 auto;padding:20px 20px 32px;display:grid;gap:16px;align-content:start}.mhead{padding:6px 0;font-size:18px}
+.authcard{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:24px;display:grid;gap:14px;box-shadow:var(--shadow)}.authcard h1{font-size:24px}.authcard p{margin:0}.authcard form{display:grid;gap:14px}.authcard form>.btn{width:100%}#social{display:grid;gap:12px}#social:empty{display:none}
+.seg{display:grid;grid-template-columns:1fr 1fr;background:var(--bg);border-radius:12px;padding:4px}.seg button{border:0;background:none;border-radius:9px;padding:9px;font-weight:600;color:var(--muted)}.seg button[aria-selected=true]{background:var(--surface);color:var(--brand);box-shadow:var(--shadow)}
+.sbtn{display:flex;align-items:center;justify-content:center;gap:10px;min-height:48px;border-radius:12px;border:1px solid #DADCE0;background:#fff;color:#1F2330;font-weight:600;width:100%}.sbtn.dark{background:#000;color:#fff;border-color:#000}.sbtn[disabled]{opacity:.6}
+.divider{display:flex;align-items:center;gap:12px;color:var(--muted);font-size:13px}.divider::before,.divider::after{content:"";flex:1;height:1px;background:var(--border)}
+.pwrow{position:relative}.pwrow input{padding-right:46px}.pwrow .ib{position:absolute;right:4px;top:5px}
+.meter{height:6px;border-radius:3px;background:var(--border);overflow:hidden}.meter i{display:block;height:100%;width:0;transition:width .2s}.meter i.s1{background:var(--bad)}.meter i.s2{background:#D97706}.meter i.s3{background:var(--ok)}
+.btn.lg{min-height:50px;font-size:16px}
+.benefits{border:1px solid var(--border);border-radius:14px;background:var(--surface);padding:12px 16px;display:grid;gap:10px}.benefits summary{cursor:pointer;font-weight:600}.authfoot{line-height:1.9}
+@media (min-width:900px){.authgrid:not(.one){grid-template-columns:1.05fr 1fr}.only-d{display:flex}.only-m{display:none!important}.authmain{align-self:center;padding:40px}}
+.foot{padding-top:12px;line-height:1.9}.foot a{margin:0 2px}
+.loading{padding:30px;text-align:center;color:var(--muted)}
+.authw{max-width:440px;margin:0 auto;padding:24px 16px 40px;display:grid;gap:16px}.authw>div:first-child{display:grid;gap:8px}
+#auth{min-height:100%;overflow:auto}body.noshell{background:var(--bg)}
+dialog{border:1px solid var(--border);border-radius:16px;background:var(--surface);color:var(--text);padding:0;width:min(460px,calc(100% - 32px));max-height:90vh;overflow:auto}dialog::backdrop{background:rgba(31,35,48,.38)}dialog form{padding:18px;display:grid;gap:14px}.dbody{display:grid;gap:14px}
+#toast{position:fixed;left:50%;bottom:84px;transform:translateX(-50%);background:var(--text);color:var(--bg);padding:10px 16px;border-radius:12px;font-size:14px;opacity:0;pointer-events:none;transition:opacity .2s;max-width:90vw;z-index:50}#toast.show{opacity:1}#toast.err{background:var(--bad);color:#fff}
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%;-webkit-tap-highlight-color:transparent}body{overflow-x:hidden}img,svg,video{max-width:100%}button,.chip,a{touch-action:manipulation}
+</style>
+</head>
+<body>
+<div id="boot" role="status">Cargando StudyFlow MX…</div>
+<div id="auth" hidden></div>
+<div id="shell" class="shell" hidden><nav id="nav" aria-label="Navegación principal"></nav><main id="main"></main></div>
+<dialog id="dlg"></dialog>
+<div id="toast" role="status" aria-live="polite"></div>
+<noscript><p style="padding:16px">StudyFlow MX necesita JavaScript. Abre esta página en Safari o Chrome.</p></noscript>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js" crossorigin="anonymous"></script>
+<script>
+/* ===================== EDITA ESTOS DATOS ANTES DE PUBLICAR =====================
+   Cambia solo el texto entre comillas. Esto aparece en el aviso de privacidad y en los términos. */
+const LEGAL = {
+  "owner": "[NOMBRE O RAZÓN SOCIAL DEL RESPONSABLE]",
+  "address": "[DOMICILIO EN MÉXICO]",
+  "email": "[CORREO DE CONTACTO PARA PRIVACIDAD]",
+  "court": "[CIUDAD DE LOS TRIBUNALES COMPETENTES]",
+  "updated": "27 de octubre de 2026",
+  "refundDays": "15",
+  "termsVersion": "2026-10-27"
+};
+/* ===================== FIN DE LO QUE DEBES EDITAR ===================== */
+const MQ = [{"id":"grade","t":"¿En qué grado estás?","multi":false,"o":[["secundaria_1","1° de secundaria"],["secundaria_2","2° de secundaria"],["secundaria_3","3° de secundaria"],["bachillerato_1","1° de bachillerato"],["bachillerato_2","2° de bachillerato"],["bachillerato_3","3° de bachillerato"]]},{"id":"learning","t":"¿Cómo aprendes mejor?","multi":false,"o":[["visual","Viendo","Esquemas, colores, fotos y diagramas"],["auditivo","Escuchando y explicando","Platicando el tema con alguien"],["practico","Practicando","Resolviendo ejercicios"],["lectura","Leyendo y escribiendo","Resúmenes y apuntes"]]},{"id":"bestTime","t":"¿Cuándo estudias mejor?","multi":false,"o":[["manana","En la mañana"],["tarde","En la tarde"],["noche","En la noche"]]},{"id":"dailyMinutes","t":"¿Cuánto tiempo puedes estudiar al día?","h":"Sé realista: es mejor poco y todos los días.","multi":false,"o":[["15","15 minutos"],["30","30 minutos"],["60","1 hora"],["90","1 hora y media o más"]]},{"id":"challenge","t":"¿Qué es lo que más te cuesta?","multi":false,"o":[["concentracion","Concentrarme"],["entender","Entender los temas"],["memorizar","Memorizar"],["organizar","Organizar mi tiempo"],["examenes","Los exámenes me ponen nervioso"]]},{"id":"review","t":"¿Cómo te gusta repasar?","multi":false,"o":[["tarjetas","Con tarjetas","Pregunta y respuesta"],["juegos","Con juegos por niveles","Como un reto"],["resumen","Con resúmenes escritos"],["explicar","Explicándole el tema a alguien"]]},{"id":"hardSubjects","t":"¿Qué materias te cuestan más?","h":"Elige las que quieras. Las agregamos a tus materias.","multi":true,"o":[["Matemáticas","Matemáticas"],["Física","Física"],["Química","Química"],["Biología","Biología"],["Español","Español"],["Historia","Historia"],["Geografía","Geografía"],["Inglés","Inglés"],["Informática","Informática"]]},{"id":"goal","t":"¿Para qué quieres usar StudyFlow?","multi":false,"o":[["promedio","Subir mi promedio"],["examenes","Pasar mis exámenes"],["organizar","Organizarme mejor"],["ingreso","Prepararme para la prepa o la universidad"]]}];
+const SUBJ = ["Matemáticas","Física","Química","Biología","Español","Historia","Geografía","Inglés","Informática"];
+const LEGAL_DOCS_T = {"privacy":{"title":"Aviso de privacidad","sections":[{"h":"1. Quién es el responsable","p":["{{owner}}, con domicilio en {{address}}, es responsable del tratamiento de tus datos personales en StudyFlow MX. Contacto del área de privacidad: {{email}}."]},{"h":"2. Qué datos personales recabamos","p":["Cuenta: correo electrónico, nombre y, si decides darlo, tu grado escolar. La contraseña la gestiona el servicio de autenticación y no la vemos. Si inicias sesión con Google o con Apple, recibimos de esa cuenta tu nombre y tu correo (nunca tu contraseña de Google o Apple).","Contenido que creas: materias, tareas, exámenes, tarjetas, juegos de estudio y resultados.","Tus respuestas al cuestionario de método de estudio: cómo aprendes, cuándo estudias, tiempo disponible, qué te cuesta y materias difíciles.","Apuntes: las fotos y archivos que subes y los mensajes que escribes a Profe Flow.","Uso: tokens de IA y subidas usadas (para aplicar los límites de tu plan), minutos de estudio, tu última visita y tus preferencias de correo.","Datos técnicos: los proveedores de infraestructura pueden registrar dirección IP, tipo de dispositivo y navegador por seguridad.","Pagos: no recibimos ni guardamos números de tarjeta; los procesan Stripe, Apple o Google.","No solicitamos datos personales sensibles. Te pedimos no subir información de salud, creencias, origen étnico, datos de otras personas ni fotos de personas."]},{"h":"3. Para qué usamos tus datos","p":["Finalidades necesarias: crear y administrar tu cuenta, prestarte el servicio, guardar tu contenido, adaptar la app a tu método de estudio, aplicar los límites de tu plan, generar respuestas y juegos con IA cuando lo pides, procesar pagos, proteger la cuenta y prevenir abuso o fraude, y cumplir obligaciones legales.","Finalidades opcionales: enviarte recordatorios y novedades o promociones por correo. Están apagadas por defecto; puedes activarlas o desactivarlas en Perfil o con el enlace de baja de cada correo, sin afectar el servicio.","No vendemos tus datos, no mostramos publicidad de terceros y no te perfilamos para publicidad."]},{"h":"4. Con quién compartimos tus datos","p":["Usamos proveedores que tratan datos por cuenta nuestra: Supabase (autenticación, base de datos y almacenamiento), Anthropic (inteligencia artificial), Stripe (pagos en la web), Google y Apple (inicio de sesión, si lo eliges, y compras en sus tiendas, si aplica), un proveedor de correo (Resend o Brevo, solo si activas los correos) y el servicio de alojamiento de la página web.","Algunos de ellos pueden tratar datos en servidores fuera de México, por ejemplo en Estados Unidos. También podemos compartir información con autoridades cuando la ley lo exija."]},{"h":"5. Inteligencia artificial","p":["Cuando usas Profe Flow o creas un juego con tus apuntes, enviamos tu mensaje y los archivos que adjuntes al proveedor de IA únicamente para generar la respuesta, y solo cuando tú lo pides. Aplican las políticas de ese proveedor. No usamos tus apuntes para entrenar modelos propios. Evita enviar datos de otras personas."]},{"h":"6. Menores de edad","p":["StudyFlow MX está pensada para estudiantes de secundaria y bachillerato. Si eres menor de 18 años necesitas el permiso de tu madre, padre o tutor para usarla, y al registrarte declaras que lo tienes. Las promociones por correo están apagadas por defecto. Tu madre, padre o tutor puede solicitar el acceso, la corrección o la eliminación de tus datos escribiendo a nuestro correo de privacidad."]},{"h":"7. Tus derechos (ARCO) y cómo ejercerlos","p":["Tienes derecho a acceder a tus datos, rectificarlos, cancelarlos y oponerte a su tratamiento, así como a revocar tu consentimiento y limitar su uso. Puedes ejercerlos escribiendo a {{email}} con tu nombre, el correo de tu cuenta y qué derecho quieres ejercer. Responderemos dentro de los plazos que marca la ley.","Dentro de la app puedes descargar tus datos y eliminar tu cuenta en Perfil, y darte de baja de los correos con un clic.","Si consideras que se vulneraron tus derechos, puedes acudir a la autoridad competente en materia de protección de datos personales."]},{"h":"8. Cuánto tiempo conservamos tus datos","p":["Mientras tengas cuenta. Si la eliminas, borramos tu perfil, contenido y archivos; las copias de respaldo se sobrescriben de forma periódica. Los proveedores de pago pueden conservar registros por obligaciones fiscales y legales."]},{"h":"9. Almacenamiento local y cookies","p":["Usamos únicamente el almacenamiento local de tu navegador o dispositivo para mantener tu sesión iniciada. No usamos cookies publicitarias ni analítica de terceros."]},{"h":"10. Seguridad","p":["Usamos conexiones cifradas, permisos por usuario en la base de datos, archivos privados y contraseñas gestionadas por un servicio especializado. Ninguna medida es infalible. Si ocurre una vulneración que afecte significativamente tus derechos, te lo informaremos."]},{"h":"11. Cambios a este aviso","p":["Publicaremos aquí cualquier cambio, con su fecha, y si es importante te lo avisaremos en la app. Última actualización: {{updated}}."]}]},"terms":{"title":"Términos y condiciones de uso","sections":[{"h":"1. Aceptación","p":["Al crear una cuenta o usar StudyFlow MX aceptas estos términos, el Aviso de privacidad, la Política de cancelación y reembolsos y las Reglas de uso de IA. Si no estás de acuerdo, no uses la app."]},{"h":"2. Qué es StudyFlow MX","p":["Es una herramienta de organización y estudio para estudiantes: tareas, exámenes, tarjetas, juegos de estudio, sesiones de enfoque, un tutor con inteligencia artificial (Profe Flow) y la creación de juegos a partir de tus apuntes. Es un apoyo para estudiar; no sustituye a tu escuela ni a tus maestros."]},{"h":"3. Edad y menores","p":["Si eres menor de 18 años, declaras que tu madre, padre o tutor conoce y autoriza el uso de la app y estos términos. Los pagos de la suscripción deben hacerlos o autorizarlos una persona adulta."]},{"h":"4. Tu cuenta","p":["Eres responsable de mantener segura tu contraseña y de lo que ocurra en tu cuenta. Avísanos de inmediato si crees que alguien entró sin permiso. Debes darnos información verdadera."]},{"h":"5. Uso permitido y prohibido","p":["Úsala solo para estudiar. No puedes: subir contenido ilegal, violento, sexual, que acose o discrimine, ni fotos de personas; subir datos personales de otras personas; intentar acceder a cuentas o datos ajenos; saltarte los límites del plan, automatizar solicitudes o dañar el servicio; ni usarla para hacer trampa en evaluaciones en contra de las reglas de tu escuela."]},{"h":"6. Tu contenido y los derechos de autor","p":["Tu contenido sigue siendo tuyo. Nos das permiso limitado para almacenarlo y procesarlo, incluida su revisión por IA cuando tú lo pides, solo para prestarte el servicio.","Declaras que tienes derecho a subir lo que subes. No subas libros u obras completas ni material protegido que no puedas usar para estudiar. Si crees que algo infringe tus derechos, escríbenos a nuestro correo de contacto con la información necesaria y lo revisaremos."]},{"h":"7. La inteligencia artificial puede equivocarse","p":["Las respuestas de Profe Flow y los juegos creados con IA pueden ser incorrectos, incompletos o desactualizados. Verifica lo importante con tu libro o tu maestro. No ofrecemos asesoría médica, psicológica, legal ni financiera, y no garantizamos calificaciones ni resultados académicos."]},{"h":"8. Plan gratis y Premium","p":["El plan gratis tiene límites diarios de IA, subidas y juegos. Premium amplía esos límites. Podemos ajustar los límites y las funciones; si el cambio te perjudica de forma importante, te avisaremos con anticipación razonable."]},{"h":"9. Precios, impuestos y promociones","p":["Los precios están en pesos mexicanos y se muestran con los impuestos aplicables incluidos. El precio de lanzamiento de Premium es de $69 MXN al mes por tiempo limitado; el precio regular es de $99 MXN al mes. Si cambiamos el precio, aplicará a futuras renovaciones y te avisaremos antes.","Las promociones tienen la vigencia indicada y no son acumulables salvo que se diga lo contrario."]},{"h":"10. Pagos y renovación","p":["En la web puedes pagar con tarjeta (suscripción mensual que se renueva automáticamente hasta que la canceles) o en OXXO (pago único que da 30 días de Premium y no se renueva). Los pagos los procesa Stripe. Las compras en iPhone o Android se hacen por App Store o Google Play y se rigen también por sus reglas.","El Premium solo se activa cuando el pago se confirma en nuestros servidores. Puedes cancelar cuando quieras como se explica en la Política de cancelación y reembolsos."]},{"h":"11. Propiedad intelectual de la app","p":["El nombre, logotipo, diseño y código de StudyFlow MX son de su titular. Te damos una licencia personal, limitada y revocable para usar la app. No puedes copiarla, venderla ni intentar obtener su código."]},{"h":"12. Suspensión y terminación","p":["Puedes dejar de usar la app y eliminar tu cuenta cuando quieras desde Perfil. Podemos suspender o cerrar cuentas que incumplan estos términos o pongan en riesgo a otras personas, avisándote cuando sea posible."]},{"h":"13. Disponibilidad y responsabilidad","p":["Hacemos lo posible por mantener el servicio disponible, pero puede haber interrupciones, errores o mantenimientos. La app se ofrece «tal cual» y, en la medida permitida por la ley, no respondemos por daños indirectos, pérdida de datos por causas ajenas a nosotros ni por decisiones tomadas con base en respuestas de la IA.","Nada de estos términos limita los derechos que la ley te da como consumidor ni excluye responsabilidades que la ley no permita excluir."]},{"h":"14. Cambios a estos términos","p":["Podemos actualizar estos términos. Publicaremos la nueva versión con su fecha y, si el cambio es importante, te lo avisaremos en la app. Si sigues usando la app después, se entenderá que lo aceptas; si no estás de acuerdo, puedes eliminar tu cuenta."]},{"h":"15. Ley aplicable y contacto","p":["Estos términos se rigen por las leyes de México. Para cualquier controversia, las partes se someten a los tribunales de {{court}}, sin perjuicio de tu derecho como consumidor de acudir a la Procuraduría Federal del Consumidor o a los tribunales de tu domicilio cuando la ley lo permita.","{{owner}}, {{address}}, {{email}}. Última actualización: {{updated}}."]}]},"refunds":{"title":"Política de cancelación y reembolsos","sections":[{"h":"1. Cancelar la suscripción con tarjeta","p":["Puedes cancelar en cualquier momento desde el portal de pago o escribiéndonos a {{email}}. Seguirás con Premium hasta el final del periodo ya pagado y no se te cobrará de nuevo."]},{"h":"2. Pago en OXXO","p":["Es un pago único por 30 días de Premium. No se renueva solo. El voucher vence a los pocos días de generarse; si no lo pagas a tiempo, simplemente no se activa y no se te cobra."]},{"h":"3. Reembolsos","p":["Si se te cobró por error, se te cobró dos veces, o no pudiste usar Premium por una falla nuestra, escríbenos a {{email}} dentro de los {{refundDays}} días siguientes al cobro y lo revisaremos para reembolsarte lo que corresponda.","Un reembolso total puede terminar tu acceso a Premium de inmediato. Los reembolsos se hacen por el mismo medio de pago y pueden tardar en reflejarse según tu banco."]},{"h":"4. Compras en App Store o Google Play","p":["Esas compras las cobra y reembolsa Apple o Google; cancélalas y solicita reembolsos en tu cuenta de Apple o Google."]},{"h":"5. Tus derechos como consumidor","p":["Esta política no limita los derechos que te reconoce la ley, incluidos los aplicables a compras a distancia. Puedes acudir a la Procuraduría Federal del Consumidor si lo necesitas."]}]},"ai":{"title":"Reglas de uso de la inteligencia artificial","sections":[{"h":"Para qué sirve","p":["Profe Flow te explica temas, resuelve dudas paso a paso y crea juegos de estudio con tus apuntes. Es un apoyo para aprender, no un sustituto de tus maestros."]},{"h":"Puede equivocarse","p":["Revisa siempre las respuestas con tu libro o tu maestro, sobre todo en cálculos, fechas, citas y datos. Si algo no te cuadra, pregúntale de otra forma o consulta una fuente confiable."]},{"h":"Cómo usarla bien","p":["Úsala para entender, no solo para copiar: respeta las reglas de honestidad académica de tu escuela. No le pidas contenido dañino, ofensivo, sexual ni que te ayude a hacer daño a otras personas. No subas fotos de personas ni datos personales tuyos o de otros."]},{"h":"Qué se envía","p":["Tu mensaje y los archivos que adjuntes se envían al proveedor de IA solo para responderte, cuando tú lo pides. Más detalles en el Aviso de privacidad."]},{"h":"Si necesitas ayuda de una persona","p":["Profe Flow no es un servicio de salud ni de emergencias. Si estás pasando por un momento difícil o piensas en hacerte daño, habla con un adulto de confianza o llama a la Línea de la Vida (800 911 2000, en México); si hay peligro inmediato, llama al 911."]},{"h":"Reportar un problema","p":["Si una respuesta te parece inapropiada o peligrosa, escríbenos a {{email}} con una captura para que la revisemos."]}]},"deletion":{"title":"Cómo eliminar tu cuenta y tus datos","sections":[{"h":"Desde la app","p":["Entra a Perfil y toca «Eliminar mi cuenta». Escribe ELIMINAR y confirma con tu contraseña. Se borran tu perfil, tareas, materias, apuntes, juegos y resultados, y se cancela la suscripción con tarjeta. No se puede deshacer."]},{"h":"Si ya no puedes entrar","p":["Escribe a {{email}} desde el correo de tu cuenta con el asunto «Eliminar mi cuenta». Si eres menor de edad, tu madre, padre o tutor puede hacer la solicitud."]},{"h":"Suscripciones de las tiendas","p":["Si compraste por App Store o Google Play, cancela también la suscripción en tu cuenta de Apple o Google."]}]}};
+'use strict';
+/* StudyFlow MX web · single-file app. Talks to Supabase with the PUBLIC key only; every table is protected by RLS. */
+const CONFIG = { URL: 'https://emezkfmqbklmunoyehry.supabase.co', KEY: 'sb_publishable_grvUApVmfUillDpQa8PweA_jIaNfrWf', TUTOR: 'Profe Flow' };
+const legalReady = () => !Object.values(LEGAL).some((v) => String(v).startsWith('['));
+const LEGAL_VERSION = LEGAL.termsVersion;
+function legalDoc(key) { const t = LEGAL_DOCS_T[key] || LEGAL_DOCS_T.privacy, fill = (x) => x.replace(/\{\{(\w+)\}\}/g, (_, k) => (LEGAL[k] === undefined ? '' : String(LEGAL[k]))); return { title: t.title, sections: t.sections.map((s) => ({ h: fill(s.h), p: s.p.map(fill) })) }; }
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const esc = (s) => String(s ?? '').replace(/[&<>"'`]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;', '`': '&#96;' }[c]));
+const iso = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+const today = () => iso(new Date());
+const addDays = (n) => { const d = new Date(); d.setDate(d.getDate() + n); return iso(d); };
+const daysBetween = (a, b) => Math.round((Date.parse(b + 'T00:00:00Z') - Date.parse(a + 'T00:00:00Z')) / 864e5);
+const MES = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
+const dayLabel = (s) => { if (!s) return 'Sin fecha'; const d = daysBetween(today(), s); if (d === 0) return 'Hoy'; if (d === 1) return 'Mañana'; if (d === -1) return 'Ayer'; const [y, m, dd] = s.split('-').map(Number); return `${dd} ${MES[m - 1]}${y !== new Date().getFullYear() ? ' ' + y : ''}`; };
+const fmt = (n) => Number(n).toLocaleString('es-MX');
+const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
+const isDate = (v) => /^\d{4}-\d{2}-\d{2}$/.test(v) && !Number.isNaN(Date.parse(v));
+const PRIO = { 1: 'Alta', 2: 'Media', 3: 'Baja' };
+const COLORS = { violet: '#6D4AFF', green: '#16A34A', blue: '#2563EB', amber: '#D97706', rose: '#E11D48', teal: '#0D9488', slate: '#475569' };
+const COLOR_LABEL = { violet: 'Violeta', green: 'Verde', blue: 'Azul', amber: 'Ámbar', rose: 'Rosa', teal: 'Turquesa', slate: 'Gris' };
+
+const I = { home: 'M3 11l9-8 9 8M5 10v10h14V10', tasks: 'M9 6h11M9 12h11M9 18h11M4 6l1 1 2-2M4 12l1 1 2-2M4 18l1 1 2-2', calendar: 'M4 6h16v14H4zM4 10h16M8 3v4M16 3v4', cards: 'M4 8h13v11H4zM8 4h12v11', crown: 'M3 8l4 4 5-7 5 7 4-4-2 11H5z', plus: 'M12 5v14M5 12h14', check: 'M5 12l5 5 9-10', x: 'M6 6l12 12M18 6L6 18', book: 'M4 5a2 2 0 012-2h13v16H6a2 2 0 00-2 2zM4 19V5', bulb: 'M9 18h6M10 21h4M12 3a6 6 0 00-4 10c1 1 1 2 1 3h6c0-1 0-2 1-3a6 6 0 00-4-10z', flag: 'M5 21V4M5 4h12l-2 4 2 4H5', chart: 'M5 20V10M12 20V4M19 20v-7', sparkle: 'M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9zM18 16l.8 2.2L21 19l-2.2.8L18 22l-.8-2.2L15 19l2.2-.8z', send: 'M5 12l14-8-4 16-3-6-7-2z', camera: 'M4 8h3l2-3h6l2 3h3v11H4zM12 17a3.5 3.5 0 100-7 3.5 3.5 0 000 7z', image: 'M4 5h16v14H4zM4 16l5-5 4 4 3-3 4 4M9 9.5h.01', file: 'M7 3h7l5 5v13H7zM14 3v5h5', lock: 'M6 11h12v9H6zM8 11V8a4 4 0 018 0v3', trophy: 'M8 4h8v5a4 4 0 01-8 0zM8 6H4v2a3 3 0 003 3M16 6h4v2a3 3 0 01-3 3M12 13v4M8 21h8M10 17h4', quiz: 'M9 9a3 3 0 115 2c-1 1-2 1.5-2 3M12 18h.01', user: 'M12 12a4 4 0 100-8 4 4 0 000 8zM4 21a8 8 0 0116 0', trash: 'M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3', edit: 'M4 20h4L19 9l-4-4L4 16zM13 7l4 4', eye: 'M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12zM12 15a3 3 0 100-6 3 3 0 000 6z', eyeoff: 'M3 3l18 18M10.6 6.2A9.8 9.8 0 0112 6c6 0 10 6 10 6a17 17 0 01-3.2 3.9M6.4 7.6A17 17 0 002 12s4 7 10 7a9.7 9.7 0 004.2-1M9.9 9.9a3 3 0 004.2 4.2', target: 'M12 21a9 9 0 100-18 9 9 0 000 18zM12 16a4 4 0 100-8 4 4 0 000 8z' };
+const ico = (n, s = 20, c = 'currentColor', w = 1.8) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="${c}" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${I[n]}"/></svg>`;
+const LOGO = (n = 30) => `<svg width="${n}" height="${n}" viewBox="0 0 1024 1024" role="img" aria-label="StudyFlow MX"><rect width="1024" height="1024" rx="228" fill="#6D4AFF"/><path d="M512 322C440 270 336 262 252 300V690C336 652 440 660 512 712Z" fill="#fff"/><path d="M512 322C584 270 688 262 772 300V690C688 652 584 660 512 712Z" fill="#fff" fill-opacity=".86"/><path d="M286 806c56-56 112-56 168 0s112 56 168 0 112-56 168 0" fill="none" stroke="#4ADE80" stroke-width="40" stroke-linecap="round"/></svg>`;
+
+/* ---------- toast / dialogs ---------- */
+let toastTimer;
+function toast(msg, kind = 'ok') { const t = $('#toast'); t.textContent = msg; t.className = 'show ' + kind; clearTimeout(toastTimer); toastTimer = setTimeout(() => { t.className = ''; }, 3200); }
+function openDialog({ title, body, submit = 'Guardar', danger = false, onSubmit, cancel = 'Cancelar' }) {
+  const d = $('#dlg');
+  d.innerHTML = `<form method="dialog" novalidate><h2>${esc(title)}</h2><div class="dbody">${body}</div><div class="derr" role="alert"></div><div class="row end"><button type="button" class="btn sec" data-close>${esc(cancel)}</button>${submit ? `<button class="btn ${danger ? 'danger' : ''}" value="ok">${esc(submit)}</button>` : ''}</div></form>`;
+  const form = $('form', d);
+  $('[data-close]', d).onclick = () => d.close();
+  form.onsubmit = async (ev) => {
+    ev.preventDefault();
+    if (!onSubmit) return d.close();
+    const btn = $('button[value=ok]', d); if (btn) btn.disabled = true;
+    try { const msg = await onSubmit(new FormData(form), form); if (msg) { $('.derr', d).textContent = msg; } else d.close(); }
+    catch (e) { $('.derr', d).textContent = friendly(e); }
+    finally { if (btn) btn.disabled = false; }
+  };
+  if (!d.open) d.showModal();
+  const first = $('input:not([type=hidden]),textarea,select', d); if (first) first.focus();
+}
+const confirmDlg = (message, label = 'Eliminar') => new Promise((res) => {
+  let done = false;
+  openDialog({ title: '¿Confirmas?', body: `<p>${esc(message)}</p>`, submit: label, danger: true, onSubmit: () => { done = true; res(true); } });
+  $('#dlg').addEventListener('close', () => { if (!done) res(false); }, { once: true });
+});
+
+/* ---------- errors ---------- */
+const uerr = (msg, code) => Object.assign(new Error(msg), { fn: true, code });
+function friendly(e) {
+  if (e && e.fn) return e.message; // already a user-facing message (server function / upload errors)
+  const m = String((e && (e.message || e.error_description || e.msg)) || e || '').toLowerCase();
+  if (e && e.code === 'ai_not_configured') return `${CONFIG.TUTOR} aún no está activado: falta configurar el servicio de IA en el servidor.`;
+  if (m.includes('failed to fetch') || m.includes('network') || m.includes('load failed')) return 'Sin conexión. Revisa tu internet e inténtalo de nuevo.';
+  if (m.includes('invalid login')) return 'Correo o contraseña incorrectos.';
+  if (m.includes('already registered') || m.includes('already been registered')) return 'No pudimos crear la cuenta. Si ya tienes una, inicia sesión o recupera tu contraseña.';
+  if (m.includes('email not confirmed')) return 'Confirma tu correo antes de iniciar sesión.';
+  if (m.includes('provider is not enabled') || m.includes('unsupported provider')) return 'Ese método de acceso aún no está disponible.';
+  if (m.includes('rate limit') || m.includes('too many')) return 'Demasiados intentos. Espera un momento.';
+  if (m.includes('password')) return 'La contraseña no cumple los requisitos (mínimo 10 caracteres, con letras y números).';
+  if (m.includes('row-level security') || m.includes('policy')) return 'No tienes permiso para esa acción (límite del plan o dato ajeno).';
+  return 'Ocurrió un error. Inténtalo de nuevo.';
+}
+async function fnError(error) {
+  const ctx = error && error.context; let code = 'network', status = 0;
+  if (ctx && typeof ctx.json === 'function') { status = ctx.status || 0; try { code = (await ctx.json()).code || 'unknown'; } catch { code = 'unknown'; } if (status === 404) code = 'ai_not_configured'; }
+  const map = { ai_not_configured: `${CONFIG.TUTOR} aún no está activado: falta configurar el servicio de IA en el servidor.`, payments_not_configured: 'Los pagos aún no están activados.', quota_exceeded: 'Llegaste a tu límite de tokens. Se renueva pronto.', generate_limit: 'Llegaste al límite de juegos de IA de hoy. Se renueva mañana.', rate_limited: 'Vas muy rápido. Espera un minuto e inténtalo otra vez.', file_too_large: 'El archivo es demasiado grande para tu plan.', unreadable: 'No pude leer los apuntes. Prueba con una foto más clara y bien iluminada.', generation_failed: 'La IA no pudo armar un juego con ese material. Prueba con otros apuntes.', ai_unavailable: 'El servicio no está disponible ahora. Inténtalo en unos minutos.', notes_not_found: 'No encontré el archivo. Súbelo de nuevo.', reauth_required: 'Por seguridad, cierra sesión, vuelve a entrar y repite este paso.', network: 'Sin conexión. Revisa tu internet e inténtalo de nuevo.', unauthorized: 'Tu sesión expiró. Vuelve a iniciar sesión.', payments_unavailable: 'No se pudo iniciar el pago. Inténtalo más tarde.' };
+  const err = new Error(map[code] || 'Ocurrió un error. Inténtalo de nuevo.'); err.code = code; err.fn = true; return err;
+}
+
+/* ---------- pure logic (mirrors src/lib/*.ts, which has unit tests) ---------- */
+const PASS = 0.6, QPL = 5, FINALN = 10;
+const bestMap = (att) => { const m = new Map(); for (const a of att) { if (a.level === null || a.level === undefined || a.total <= 0) continue; const r = a.score / a.total; if (r > (m.get(a.level) ?? -1)) m.set(a.level, r); } return m; };
+function gprog(nq, att) { const L = Math.ceil(nq / QPL), b = bestMap(att); let c = 0; while (c < L && (b.get(c + 1) ?? 0) >= PASS) c++; const fb = b.has(0) ? b.get(0) : null; const mastery = fb !== null ? Math.round(fb * 100) : c > 0 ? Math.round([...Array(c).keys()].reduce((s, i) => s + b.get(i + 1), 0) / c * 100) : null; return { L, c, ratio: L ? c / L : 0, finalUnlocked: L > 0 && c === L, fb, mastery, b }; }
+const xpFor = (c, t) => c * 10 + (t > 0 && c === t ? 5 : 0);
+const mastMsg = (p) => p >= 90 ? ['Excelente', 'Dominas el tema. Estás listo para tu examen.'] : p >= 70 ? ['Muy bien', 'Vas muy bien. Repasa los niveles con menor puntaje.'] : p >= 50 ? ['Vas a la mitad', 'Tienes una base. Repite los niveles difíciles antes del examen.'] : ['Necesitas repasar', 'Todavía hay huecos. Repite los niveles y revisa tus apuntes.'];
+const shuffle = (a) => { const x = [...a]; for (let i = x.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [x[i], x[j]] = [x[j], x[i]]; } return x; };
+const COMMON = ['password', 'contrasena', 'contraseña', '12345678', '123456789', '1234567890', 'qwertyuiop', 'abcdefghij', 'studyflow', 'iloveyou'];
+function validatePassword(pw, email = '') { if (pw.length < 10) return 'Usa al menos 10 caracteres.'; if (pw.length > 72) return 'Usa máximo 72 caracteres.'; if (/^(.)\1+$/.test(pw)) return 'Elige una contraseña menos repetitiva.'; const low = pw.toLowerCase(); if (COMMON.some((c) => low.includes(c))) return 'Esa contraseña es muy común. Elige otra.'; const loc = (email.split('@')[0] || '').toLowerCase(); if (loc.length >= 4 && low.includes(loc)) return 'No uses tu correo dentro de la contraseña.'; if (!/[a-zA-Z]/.test(pw) || !/[0-9]/.test(pw)) return 'Combina letras y números.'; return null; }
+const cooldownSeconds = (f) => (f < 5 ? 0 : Math.min(300, 30 * 2 ** (f - 5)));
+const isStripeUrl = (u) => { try { const p = new URL(u); return p.protocol === 'https:' && p.hostname === 'checkout.stripe.com'; } catch { return false; } };
+
+/* study method */
+const EMPTY_M = () => ({ grade: null, learning: null, bestTime: null, dailyMinutes: null, challenge: null, review: null, hardSubjects: [], goal: null });
+const mSession = (a) => { const d = a.dailyMinutes || 30, base = a.challenge === 'concentracion' ? 20 : 25; return { focus: Math.min(d, base), rest: d <= 15 ? 0 : 5 }; };
+const mWeekly = (a) => (a.dailyMinutes || 30) * 5;
+const mAnswered = (a) => [a.learning, a.bestTime, a.dailyMinutes, a.challenge, a.review, a.goal].filter((x) => x !== null).length;
+const TL = { manana: 'en la mañana', tarde: 'en la tarde', noche: 'en la noche' };
+const mSummary = (a) => { const { focus, rest } = mSession(a); return `${a.bestTime ? `Estudias mejor ${TL[a.bestTime]}. ` : ''}Tu sesión ideal: ${focus} minutos${rest ? ` con ${rest} de descanso` : ''}. Meta de la semana: ${mWeekly(a)} minutos.`; };
+const ACT = { game: ['Crea un juego con tus apuntes', 'Toma una foto de tu cuaderno y estudia por niveles.', '#/notes'], cards: ['Repasa con tarjetas', 'Pregunta y respuesta para fijar lo que te cuesta memorizar.', '#/study/cards'], practice: ['Practica con ' + CONFIG.TUTOR, 'Pídele ejercicios y que te explique cada paso.', '#/tutor'], explain: ['Explícale el tema a ' + CONFIG.TUTOR, 'Dilo con tus palabras y te dice qué le falta.', '#/tutor'], summary: ['Haz un resumen con ayuda', 'Pídele un esquema y escríbelo a tu manera.', '#/tutor'], plan: ['Planea tu semana', 'Agrega tus tareas con fecha para ver qué sigue.', '#/tasks'], exams: ['Registra tus exámenes', 'Así repasas por niveles con tiempo.', '#/study/calendar'], focus: ['Empieza una sesión de enfoque', 'Bloques cortos con descanso, a tu medida.', '#/focus'] };
+function mActions(a) { const ids = []; if (a.challenge === 'concentracion') ids.push('focus'); if (a.challenge === 'organizar' || a.goal === 'organizar') ids.push('plan'); if (a.challenge === 'examenes' || a.goal === 'examenes') ids.push('exams'); if (a.review === 'juegos' || a.learning === 'visual') ids.push('game'); if (a.review === 'tarjetas' || a.challenge === 'memorizar') ids.push('cards'); if (a.learning === 'practico') ids.push('practice'); if (a.review === 'explicar' || a.learning === 'auditivo' || a.challenge === 'entender') ids.push('explain'); if (a.review === 'resumen' || a.learning === 'lectura') ids.push('summary'); ids.push('game', 'focus', 'plan'); return [...new Set(ids)].slice(0, 3).map((i) => ACT[i]); }
+function mOrder(a) { const o = ['today', 'exams', 'games', 'minutes', 'weekly', 'recs']; const f = a.review === 'juegos' ? 'games' : (a.challenge === 'examenes' || a.goal === 'examenes') ? 'exams' : a.challenge === 'organizar' ? 'today' : a.challenge === 'concentracion' ? 'minutes' : null; return f ? [f, ...o.filter((x) => x !== f)] : o; }
+function sanitizeAnswers(raw) { const opt = (id) => MQ.find((q) => q.id === id).o.map((o) => o[0]); const pick = (id) => (opt(id).includes(raw[id]) ? raw[id] : null); const mins = Number(raw.dailyMinutes); return { grade: pick('grade'), learning: pick('learning'), bestTime: pick('bestTime'), dailyMinutes: [15, 30, 60, 90].includes(mins) ? mins : null, challenge: pick('challenge'), review: pick('review'), goal: pick('goal'), hardSubjects: Array.isArray(raw.hardSubjects) ? [...new Set(raw.hardSubjects.filter((s) => SUBJ.includes(s)))].slice(0, 10) : [] }; }
+
+/* ---------- state + data layer (every query is filtered by RLS on the server) ---------- */
+const S = { user: null, profile: null, method: null, onboarded: null, recovery: false, route: '', failures: 0, lockedUntil: 0, timer: null };
+let sb = null;
+const must = (r) => { if (r.error) throw r.error; return r.data; };
+const NOTE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'application/pdf', 'text/plain'];
+const SUBJECT_COLORS = Object.keys(COLORS);
+
+const A = {
+  profile: {
+    get: async () => must(await sb.from('profiles').select('id, display_name, grade_level, weekly_goal_tasks, weekly_goal_minutes, notify_reminders, notify_promos').single()),
+    update: async (patch) => { must(await sb.from('profiles').update(patch).eq('id', S.user.id).select('id').single()); },
+    touch: async () => { await sb.from('profiles').update({ last_seen_at: new Date().toISOString() }).eq('id', S.user.id); },
+  },
+  ent: async () => must(await sb.from('entitlements').select('plan, source, expires_at').maybeSingle()),
+  limits: async () => must(await sb.from('ai_plan_limits').select('plan, period, token_limit, generate_per_day, generate_max_items, upload_per_day, upload_max_total, upload_max_mb')),
+  quota: async () => must(await sb.rpc('ai_quota').single()),
+  subjects: {
+    list: async () => must(await sb.from('subjects').select('id, name, color').order('name')),
+    save: async (id, name, color) => { if (id) must(await sb.from('subjects').update({ name, color }).eq('id', id).select('id').single()); else must(await sb.from('subjects').insert({ name, color }).select('id').single()); },
+    remove: async (id) => { must(await sb.from('subjects').delete().eq('id', id).select('id')); },
+  },
+  tasks: {
+    list: async ({ status, search }) => {
+      let q = sb.from('tasks').select('id, subject_id, title, notes, due_date, priority, status, completed_at');
+      if (status !== 'all') q = q.eq('status', status);
+      const term = (search || '').trim().replace(/[%,()]/g, ' ');
+      if (term) q = q.ilike('title', `%${term}%`);
+      return must(await q.order('due_date', { ascending: true, nullsFirst: false }).order('priority', { ascending: true }).limit(300));
+    },
+    all: async () => must(await sb.from('tasks').select('id, subject_id, title, due_date, priority, status, completed_at').limit(500)),
+    save: async (t) => { const { id, ...f } = t; if (id) must(await sb.from('tasks').update(f).eq('id', id).select('id').single()); else must(await sb.from('tasks').insert(f).select('id').single()); },
+    setDone: async (id, done) => { must(await sb.from('tasks').update({ status: done ? 'done' : 'pending', completed_at: done ? new Date().toISOString() : null }).eq('id', id).select('id').single()); },
+    remove: async (id) => { must(await sb.from('tasks').delete().eq('id', id).select('id')); },
+  },
+  exams: {
+    list: async () => must(await sb.from('exams').select('id, subject_id, title, exam_date, notes').order('exam_date', { ascending: true }).limit(300)),
+    save: async (e) => { const { id, ...f } = e; if (id) must(await sb.from('exams').update(f).eq('id', id).select('id').single()); else must(await sb.from('exams').insert(f).select('id').single()); },
+    remove: async (id) => { must(await sb.from('exams').delete().eq('id', id).select('id')); },
+  },
+  decks: {
+    list: async () => must(await sb.from('flashcard_decks').select('id, subject_id, title').order('created_at', { ascending: false })),
+    create: async (title, subject_id) => { must(await sb.from('flashcard_decks').insert({ title, subject_id }).select('id').single()); },
+    remove: async (id) => { must(await sb.from('flashcard_decks').delete().eq('id', id).select('id')); },
+    get: async (id) => must(await sb.from('flashcard_decks').select('id, subject_id, title').eq('id', id).single()),
+    cards: async (deck_id) => must(await sb.from('flashcards').select('id, deck_id, front, back, times_reviewed, times_correct').eq('deck_id', deck_id).order('created_at')),
+    allCards: async () => must(await sb.from('flashcards').select('id, deck_id, times_reviewed, times_correct').limit(1000)),
+    saveCard: async (c) => { if (c.id) must(await sb.from('flashcards').update({ front: c.front, back: c.back }).eq('id', c.id).select('id').single()); else must(await sb.from('flashcards').insert({ deck_id: c.deck_id, front: c.front, back: c.back }).select('id').single()); },
+    removeCard: async (id) => { must(await sb.from('flashcards').delete().eq('id', id).select('id')); },
+    review: async (c, ok) => { must(await sb.from('flashcards').update({ times_reviewed: c.times_reviewed + 1, times_correct: c.times_correct + (ok ? 1 : 0), last_reviewed_at: new Date().toISOString() }).eq('id', c.id).select('id').single()); },
+  },
+  quizzes: {
+    list: async () => must(await sb.from('quizzes').select('id, subject_id, title, source').order('created_at', { ascending: false })),
+    create: async (title, subject_id) => { must(await sb.from('quizzes').insert({ title, subject_id }).select('id').single()); },
+    remove: async (id) => { must(await sb.from('quizzes').delete().eq('id', id).select('id')); },
+    get: async (id) => must(await sb.from('quizzes').select('id, subject_id, title, source').eq('id', id).single()),
+    questions: async (id) => must(await sb.from('quiz_questions').select('id, quiz_id, prompt, options, correct_index, position, explanation').eq('quiz_id', id).order('position')),
+    saveQuestion: async (q) => { const { id, ...f } = q; if (id) must(await sb.from('quiz_questions').update(f).eq('id', id).select('id').single()); else must(await sb.from('quiz_questions').insert(f).select('id').single()); },
+    removeQuestion: async (id) => { must(await sb.from('quiz_questions').delete().eq('id', id).select('id')); },
+    saveAttempt: async (quiz_id, score, total, level) => { must(await sb.from('quiz_attempts').insert({ quiz_id, score, total, level }).select('id').single()); },
+    attempts: async () => must(await sb.from('quiz_attempts').select('id, quiz_id, score, total, taken_at, level').order('taken_at', { ascending: false }).limit(300)),
+    counts: async () => { const rows = must(await sb.from('quiz_questions').select('quiz_id').limit(5000)); const m = new Map(); for (const r of rows) m.set(r.quiz_id, (m.get(r.quiz_id) || 0) + 1); return m; },
+  },
+  notes: {
+    list: async () => must(await sb.from('study_notes').select('id, subject_id, title, kind, storage_path, mime_type, size_bytes, created_at').order('created_at', { ascending: false }).limit(200)),
+    // Upload limits (per day / total / size) are enforced by the database storage policy, not only here.
+    upload: async (file, subject_id, maxMb) => {
+      if (!NOTE_TYPES.includes(file.type)) throw uerr('Formato no compatible. Usa foto JPG, PNG o WebP, PDF o texto.', 'bad_type');
+      if (file.size > maxMb * 1048576) throw uerr(`El archivo pesa más de ${maxMb} MB, el máximo de tu plan.`, 'too_big');
+      const ext = file.type === 'application/pdf' ? 'pdf' : file.type === 'text/plain' ? 'txt' : file.type.split('/')[1];
+      const path = `${S.user.id}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+      const up = await sb.storage.from('notes').upload(path, file, { contentType: file.type, upsert: false });
+      if (up.error) throw uerr(/row-level security|violates|policy/i.test(up.error.message) ? 'Llegaste a tu límite de subidas de hoy o de archivos guardados.' : friendly(up.error));
+      const r = await sb.from('study_notes').insert({ title: (file.name || 'Apunte').slice(0, 120), kind: file.type.startsWith('image/') ? 'photo' : 'file', storage_path: path, mime_type: file.type, size_bytes: file.size, subject_id }).select('id, title, kind').single();
+      if (r.error) { await sb.storage.from('notes').remove([path]); throw r.error; }
+      return r.data;
+    },
+    remove: async (n) => { const r = await sb.storage.from('notes').remove([n.storage_path]); if (r.error) throw r.error; must(await sb.from('study_notes').delete().eq('id', n.id).select('id')); },
+    url: async (path) => { const r = await sb.storage.from('notes').createSignedUrl(path, 3600); return (r.data && r.data.signedUrl) || null; },
+  },
+  method: {
+    get: async () => { const r = await sb.from('study_profiles').select('learning_style, best_time, daily_minutes, challenge, review_style, hard_subjects, goal').maybeSingle(); if (r.error) throw r.error; if (!r.data) return null; const d = r.data; return sanitizeAnswers({ learning: d.learning_style, bestTime: d.best_time, dailyMinutes: d.daily_minutes, challenge: d.challenge, review: d.review_style, goal: d.goal, hardSubjects: d.hard_subjects }); },
+    save: async (a) => {
+      must(await sb.from('study_profiles').upsert({ user_id: S.user.id, learning_style: a.learning, best_time: a.bestTime, daily_minutes: a.dailyMinutes, challenge: a.challenge, review_style: a.review, hard_subjects: a.hardSubjects, goal: a.goal }, { onConflict: 'user_id' }).select('user_id').single());
+      const patch = {}; if (a.dailyMinutes) patch.weekly_goal_minutes = mWeekly(a); if (a.grade) patch.grade_level = a.grade;
+      if (Object.keys(patch).length) await A.profile.update(patch);
+      if (a.hardSubjects.length) {
+        const have = new Set((await A.subjects.list()).map((s) => s.name.toLowerCase()));
+        const missing = a.hardSubjects.filter((n) => !have.has(n.toLowerCase()));
+        if (missing.length) must(await sb.from('subjects').insert(missing.map((name, i) => ({ name, color: SUBJECT_COLORS[(have.size + i) % SUBJECT_COLORS.length] }))).select('id'));
+      }
+    },
+  },
+  sessions: {
+    add: async (min) => { must(await sb.from('study_sessions').insert({ minutes: Math.min(180, Math.max(1, Math.round(min))) }).select('id').single()); },
+    week: async () => { const since = new Date(Date.now() - 7 * 864e5).toISOString(); return must(await sb.from('study_sessions').select('minutes').gte('started_at', since).limit(1000)).reduce((t, r) => t + r.minutes, 0); },
+  },
+  fn: async (name, body) => { const { data, error } = await sb.functions.invoke(name, { body }); if (error) throw await fnError(error); return data; },
+  exportAll: async () => { const out = { exported_at: new Date().toISOString() }; for (const t of ['profiles', 'subjects', 'tasks', 'exams', 'flashcard_decks', 'flashcards', 'quizzes', 'quiz_questions', 'quiz_attempts', 'study_notes', 'study_profiles', 'study_sessions', 'entitlements']) { const r = await sb.from(t).select('*').limit(5000); if (r.error) throw r.error; out[t] = r.data; } return JSON.stringify(out, null, 2); },
+};
+
+/* insights */
+const weeklyDone = (tasks) => { const t0 = today(); return tasks.filter((t) => t.status === 'done' && t.completed_at && daysBetween(iso(new Date(t.completed_at)), t0) >= 0 && daysBetween(iso(new Date(t.completed_at)), t0) < 7).length; };
+function recommendations({ subjects, tasks, exams, decks }) {
+  const t0 = today(), recs = [];
+  const over = tasks.filter((t) => t.status === 'pending' && t.due_date && t.due_date < t0).length;
+  if (over) recs.push([over === 1 ? 'Tienes 1 tarea vencida' : `Tienes ${over} tareas vencidas`, 'Termínalas o muévelas de fecha.', '#/tasks']);
+  const soon = exams.filter((e) => { const d = daysBetween(t0, e.exam_date); return d >= 0 && d <= 7; }).sort((a, b) => a.exam_date.localeCompare(b.exam_date))[0];
+  if (soon) { const hasDeck = soon.subject_id && decks.some((d) => d.subject_id === soon.subject_id); if (!hasDeck) { const d = daysBetween(t0, soon.exam_date); recs.push([`“${soon.title}” es ${d === 0 ? 'hoy' : d === 1 ? 'mañana' : `en ${d} días`}`, 'No tienes tarjetas de esa materia. Crea un mazo para repasar.', '#/study/cards']); } }
+  if (!subjects.length) recs.push(['Agrega tus materias', 'Organiza tareas, exámenes y tarjetas por materia.', '#/study/subjects']);
+  return recs.slice(0, 3);
+}
+
+/* ---------- view helpers ---------- */
+const VIEWS = {}, ACTS = {};
+const card = (inner, cls = '') => `<section class="card ${cls}">${inner}</section>`;
+const empty = (icon, title, body, act = '') => `<div class="empty"><div class="ic">${ico(icon, 26, 'var(--brand)')}</div><h2>${esc(title)}</h2><p class="muted">${esc(body)}</p>${act}</div>`;
+const bar = (r, color = 'var(--ok)') => `<div class="bar" role="progressbar" aria-valuenow="${Math.round(r * 100)}" aria-valuemin="0" aria-valuemax="100"><i style="width:${Math.round(Math.min(1, Math.max(0, r)) * 100)}%;background:${color}"></i></div>`;
+function ring(r, label, size = 76) { const R = size / 2 - 4, C = 2 * Math.PI * R, m = size / 2; return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" role="img" aria-label="Progreso ${esc(label)}"><circle cx="${m}" cy="${m}" r="${R}" fill="none" stroke="var(--border)" stroke-width="8"/><circle cx="${m}" cy="${m}" r="${R}" fill="none" stroke="var(--ok)" stroke-width="8" stroke-linecap="round" stroke-dasharray="${C * Math.min(1, Math.max(0, r))} ${C}" transform="rotate(-90 ${m} ${m})"/><text x="${m}" y="${m + 5}" text-anchor="middle" font-size="${size > 100 ? 24 : 15}" font-weight="700" fill="var(--text)">${esc(label)}</text></svg>`; }
+const loadingHtml = '<div class="loading" role="status">Cargando…</div>';
+const errHtml = (m) => `<div class="card center">${ico('x', 24, 'var(--bad)')}<p>${esc(m)}</p><button class="btn sec sm" data-act="reload">Reintentar</button></div>`;
+const subjOf = (subs, id) => subs.find((s) => s.id === id);
+const subjSelect = (subs, val, name = 'subject_id') => `<label>Materia<select name="${name}"><option value="">Ninguna</option>${subs.map((s) => `<option value="${esc(s.id)}" ${s.id === val ? 'selected' : ''}>${esc(s.name)}</option>`).join('')}</select></label>`;
+const tabs = (cur, list, base) => `<div class="chips" role="tablist">${list.map(([k, l]) => `<a class="chip" role="tab" aria-selected="${cur === k}" href="${base}/${k}">${esc(l)}</a>`).join('')}</div>`;
+const sortTasks = (a) => [...a].sort((x, y) => (x.due_date || '9') < (y.due_date || '9') ? -1 : (x.due_date || '9') > (y.due_date || '9') ? 1 : x.priority - y.priority);
+
+function taskRow(t, subs, edit = false) {
+  const done = t.status === 'done', s = subjOf(subs, t.subject_id), over = !done && t.due_date && t.due_date < today();
+  return `<div class="task ${done ? 'done' : ''}"><button class="cb" role="checkbox" aria-checked="${done}" aria-label="Marcar «${esc(t.title)}» como ${done ? 'pendiente' : 'completada'}" data-act="toggleTask" data-id="${esc(t.id)}" data-done="${done ? 0 : 1}">${done ? ico('check', 14, '#fff', 3) : ''}</button>
+  <div class="grow"><div class="tt">${esc(t.title)}</div><div class="meta">${s ? `<span class="row g5"><i class="dot" style="background:${COLORS[s.color] || COLORS.slate}"></i>${esc(s.name)}</span>` : ''}<span style="color:${over ? 'var(--bad)' : 'inherit'}">${esc(dayLabel(t.due_date))}</span>${t.priority === 1 && !done ? `<span class="row g5" style="color:var(--bad)">${ico('flag', 12, 'var(--bad)')}Alta</span>` : ''}</div></div>
+  ${edit ? `<button class="ib" aria-label="Editar tarea" data-act="editTask" data-id="${esc(t.id)}">${ico('edit', 18)}</button><button class="ib" aria-label="Eliminar tarea" data-act="delTask" data-id="${esc(t.id)}">${ico('trash', 18)}</button>` : ''}</div>`;
+}
+
+/* ---------- HOME ---------- */
+VIEWS.home = async () => {
+  const [profile, subjects, tasks, exams, decks, cards, quizzes, attempts, counts, method, minutes] = await Promise.all([A.profile.get(), A.subjects.list(), A.tasks.all(), A.exams.list(), A.decks.list(), A.decks.allCards(), A.quizzes.list(), A.quizzes.attempts(), A.quizzes.counts(), A.method.get().catch(() => null), A.sessions.week().catch(() => 0)]);
+  S.profile = profile; S.method = method; const m = method || EMPTY_M(), t0 = today();
+  const hoy = sortTasks(tasks.filter((t) => t.status === 'pending' && t.due_date && t.due_date <= t0));
+  const done = weeklyDone(tasks), goal = profile.weekly_goal_tasks, ratio = Math.min(1, done / Math.max(1, goal));
+  const goalMin = profile.weekly_goal_minutes, mr = Math.min(1, minutes / Math.max(1, goalMin));
+  const recs = recommendations({ subjects, tasks, exams, decks });
+  const games = quizzes.map((q) => ({ q, p: gprog(counts.get(q.id) || 0, attempts.filter((a) => a.quiz_id === q.id)) }));
+  const upcoming = exams.filter((e) => e.exam_date >= t0).slice(0, 3);
+  const name = (profile.display_name || '').trim().split(' ')[0];
+  const f = new Date().toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long' });
+  const sec = {
+    today: card(`<div class="row between"><h2>Hoy</h2><a class="btn sm sec" href="#/tasks">Ver todas</a></div>${hoy.length ? hoy.map((t) => taskRow(t, subjects)).join('') : empty('check', 'Nada pendiente para hoy', 'Cuando agregues tareas con fecha de hoy o vencidas, aparecerán aquí.')}`),
+    exams: card(`<div class="row between"><h2>Próximos exámenes</h2><a class="btn sm sec" href="#/study/calendar">Calendario</a></div>${upcoming.length ? upcoming.map((e) => `<div class="row between"><div><div>${esc(e.title)}</div><div class="small muted">${esc(subjOf(subjects, e.subject_id)?.name || 'Sin materia')}</div></div><div class="small" style="color:var(--brand);font-weight:600">${esc(dayLabel(e.exam_date))}</div></div>`).join('') : '<div class="muted">No tienes exámenes próximos registrados.</div>'}`),
+    games: card(`<div class="row between"><h2>Tu avance en juegos</h2><a class="btn sm sec" href="#/notes">Apuntes</a></div>${games.length ? games.slice(0, 4).map(({ q, p }) => `<a class="card sub" href="#/game/${esc(q.id)}"><div class="row between"><strong>${esc(q.title)}</strong><span class="small muted">${p.mastery !== null ? `Dominio ${p.mastery}%` : 'Sin empezar'}</span></div>${bar(p.ratio)}<div class="small muted">${p.c} de ${p.L} niveles</div></a>`).join('') : empty('camera', 'Crea tu primer juego', 'Toma una foto de tus apuntes y la IA arma un juego por niveles para estudiar.', '<a class="btn sm" href="#/notes">Subir apuntes</a>')}`),
+    minutes: card(`<div class="row between"><h2>Minutos de estudio</h2><a class="btn sm sec" href="#/focus">Enfoque</a></div><div class="row">${ring(mr, Math.round(mr * 100) + '%')}<div class="grow"><div>${fmt(minutes)} de ${fmt(goalMin)} min esta semana</div><div class="small muted">Cada bloque de enfoque que termines suma aquí.</div></div></div>`),
+    weekly: card(`<h2>Progreso semanal</h2><div class="row">${ring(ratio, Math.round(ratio * 100) + '%')}<div class="grow col">${`<div>${done} de ${goal} tareas completadas</div>`}${bar(ratio)}<div class="small muted">Objetivo semanal de tareas. Se cambia en Perfil.</div></div></div>`),
+    recs: card(`<h2>Recomendaciones</h2>${recs.length ? recs.map((r) => `<a class="rec" href="${esc(r[2])}">${ico('bulb', 20, 'var(--brand)')}<div><div style="font-weight:600">${esc(r[0])}</div><div class="small muted">${esc(r[1])}</div></div></a>`).join('') : '<div class="muted">Cuando tengas más actividad, aquí verás sugerencias basadas en tus datos.</div>'}`),
+  };
+  const methodCard = mAnswered(m) > 0
+    ? card(`<div class="row between"><div class="row g8">${ico('sparkle', 20, 'var(--brand)')}<h2>Tu método de estudio</h2></div><a class="btn sm sec" href="#/onboarding">Cambiar</a></div><div class="small muted">${esc(mSummary(m))}</div>${mActions(m).map((x) => `<a class="rec" href="${x[2]}"><div><div style="font-weight:600">${esc(x[0])}</div><div class="small muted">${esc(x[1])}</div></div></a>`).join('')}`)
+    : `<a class="card" href="#/onboarding"><div class="row g8">${ico('sparkle', 20, 'var(--brand)')}<h2>Personaliza StudyFlow</h2></div><div class="small muted">Responde 8 preguntas y adaptamos la app a tu forma de estudiar.</div></a>`;
+  return `<div><h1>${name ? `Hola, ${esc(name)}` : 'Hola'}</h1><div class="small muted">${esc(cap(f))}</div></div><button class="btn" data-act="newTask">${ico('plus', 18, '#fff')}Nueva tarea</button>${methodCard}${mOrder(m).map((k) => sec[k]).join('')}`;
+};
+
+/* ---------- TASKS ---------- */
+S.tf = { status: 'pending', search: '' };
+VIEWS.tasks = async () => {
+  const [tasks, subjects] = await Promise.all([A.tasks.list(S.tf), A.subjects.list()]); S.subjects = subjects; S.taskCache = tasks;
+  return `<div class="row between"><h1>Tareas</h1><button class="btn sm" data-act="newTask">${ico('plus', 16, '#fff')}Nueva</button></div>
+  <input type="search" id="q" placeholder="Buscar por título" value="${esc(S.tf.search)}" aria-label="Buscar tareas" maxlength="80">
+  <div class="chips">${[['pending', 'Pendientes'], ['done', 'Completadas'], ['all', 'Todas']].map(([k, v]) => `<button class="chip" aria-pressed="${S.tf.status === k}" data-act="tfilter" data-v="${k}">${v}</button>`).join('')}</div>
+  ${card(tasks.length ? tasks.map((t) => taskRow(t, subjects, true)).join('') : empty('tasks', S.tf.search ? 'Sin resultados' : S.tf.status === 'done' ? 'Aún no completas tareas' : 'No hay tareas pendientes', S.tf.search ? 'Prueba con otra búsqueda.' : 'Crea una tarea para empezar. Se ordenan por fecha límite y prioridad.', S.tf.search || S.tf.status === 'done' ? '' : '<button class="btn sm" data-act="newTask">Crear tarea</button>'), 'nopad')}`;
+};
+async function taskDialog(task) {
+  const subs = S.subjects || await A.subjects.list();
+  openDialog({ title: task ? 'Editar tarea' : 'Nueva tarea', body: `<label>Título<input name="title" maxlength="160" value="${esc(task?.title || '')}" placeholder="Ej. Resolver ejercicios de álgebra" required></label>
+    <label>Fecha límite<input type="date" name="due" value="${esc(task?.due_date || '')}"></label>
+    <label>Prioridad<select name="priority">${[1, 2, 3].map((p) => `<option value="${p}" ${(task?.priority || 2) === p ? 'selected' : ''}>${PRIO[p]}</option>`).join('')}</select></label>${subjSelect(subs, task?.subject_id)}
+    <label>Notas (opcional)<textarea name="notes" maxlength="2000">${esc(task?.notes || '')}</textarea></label>`,
+    onSubmit: async (fd) => { const title = (fd.get('title') || '').trim(), due = fd.get('due') || ''; if (!title) return 'Escribe un título.'; if (due && !isDate(due)) return 'La fecha no es válida.';
+      await A.tasks.save({ id: task?.id, title, due_date: due || null, priority: Number(fd.get('priority')), subject_id: fd.get('subject_id') || null, notes: (fd.get('notes') || '').trim() || null }); toast(task ? 'Tarea actualizada' : 'Tarea creada'); render(); } });
+}
+ACTS.newTask = () => taskDialog(null);
+ACTS.editTask = async (el) => { const t = (S.taskCache || []).find((x) => x.id === el.dataset.id); if (t) taskDialog(t); };
+ACTS.toggleTask = async (el) => { try { await A.tasks.setDone(el.dataset.id, el.dataset.done === '1'); render(); } catch (e) { toast(friendly(e), 'err'); } };
+ACTS.delTask = async (el) => { if (!(await confirmDlg('¿Eliminar esta tarea? No se puede deshacer.'))) return; try { await A.tasks.remove(el.dataset.id); toast('Tarea eliminada'); render(); } catch (e) { toast(friendly(e), 'err'); } };
+ACTS.tfilter = (el) => { S.tf.status = el.dataset.v; render(); };
+ACTS.reload = () => render();
+
+/* ---------- STUDY (tabs) ---------- */
+const STUDY_TABS = [['games', 'Juegos'], ['cards', 'Tarjetas'], ['calendar', 'Calendario'], ['subjects', 'Materias'], ['stats', 'Resultados']];
+VIEWS.study = async ([tab = 'games']) => {
+  const head = `<h1>Estudio</h1>${tabs(tab, STUDY_TABS, '#/study')}`;
+  if (tab === 'cards') return head + await studyCards();
+  if (tab === 'calendar') return head + await studyCalendar();
+  if (tab === 'subjects') return head + await studySubjects();
+  if (tab === 'stats') return head + await studyStats();
+  return head + await studyGames();
+};
+async function studyGames() {
+  const [quizzes, attempts, subjects, counts] = await Promise.all([A.quizzes.list(), A.quizzes.attempts(), A.subjects.list(), A.quizzes.counts()]); S.subjects = subjects;
+  return `<div class="row between"><div class="small muted">Cada 5 preguntas forman un nivel.</div><button class="btn sm" data-act="newQuiz">${ico('plus', 16, '#fff')}Juego manual</button></div>` + (quizzes.length ? quizzes.map((q) => { const p = gprog(counts.get(q.id) || 0, attempts.filter((a) => a.quiz_id === q.id)); return `<div class="card sub"><div class="row"><a class="grow" href="#/game/${esc(q.id)}"><strong>${esc(q.title)}</strong>${q.source === 'ai' ? ' <span class="pill">IA</span>' : ''}<div class="small muted">${esc(subjOf(subjects, q.subject_id)?.name || 'Sin materia')} · ${p.c}/${p.L} niveles${p.mastery !== null ? ` · Dominio ${p.mastery}%` : ''}</div>${bar(p.ratio)}</a><button class="ib" aria-label="Eliminar ${esc(q.title)}" data-act="delQuiz" data-id="${esc(q.id)}">${ico('trash', 18)}</button></div></div>`; }).join('') : card(empty('quiz', 'Aún no tienes juegos', 'Sube una foto de tus apuntes y la IA crea un juego por niveles, o crea uno manual.', '<a class="btn sm" href="#/notes">Subir apuntes</a>')));
+}
+ACTS.newQuiz = async () => { const subs = S.subjects || await A.subjects.list(); openDialog({ title: 'Nuevo juego manual', body: `<label>Nombre<input name="title" maxlength="120" required></label>${subjSelect(subs, null)}`, onSubmit: async (fd) => { const t = (fd.get('title') || '').trim(); if (!t) return 'Escribe el nombre del juego.'; await A.quizzes.create(t, fd.get('subject_id') || null); toast('Juego creado'); render(); } }); };
+ACTS.delQuiz = async (el) => { if (!(await confirmDlg('¿Eliminar el juego, sus preguntas y resultados?'))) return; try { await A.quizzes.remove(el.dataset.id); toast('Juego eliminado'); render(); } catch (e) { toast(friendly(e), 'err'); } };
+
+async function studyCards() {
+  const [decks, cards, subjects] = await Promise.all([A.decks.list(), A.decks.allCards(), A.subjects.list()]); S.subjects = subjects;
+  return `<div class="row between"><div class="small muted">Pregunta y respuesta para repasar.</div><button class="btn sm" data-act="newDeck">${ico('plus', 16, '#fff')}Nuevo mazo</button></div>` + (decks.length ? decks.map((d) => { const n = cards.filter((c) => c.deck_id === d.id).length; return `<div class="card sub"><div class="row"><a class="grow" href="#/deck/${esc(d.id)}"><strong>${esc(d.title)}</strong><div class="small muted">${esc(subjOf(subjects, d.subject_id)?.name || 'Sin materia')} · ${n} ${n === 1 ? 'tarjeta' : 'tarjetas'}</div></a><button class="ib" aria-label="Eliminar mazo ${esc(d.title)}" data-act="delDeck" data-id="${esc(d.id)}">${ico('trash', 18)}</button></div></div>`; }).join('') : card(empty('cards', 'Aún no tienes mazos', 'Crea un mazo y agrega tarjetas para repasar conceptos.')));
+}
+ACTS.newDeck = async () => { const subs = S.subjects || await A.subjects.list(); openDialog({ title: 'Nuevo mazo', body: `<label>Nombre<input name="title" maxlength="120" required></label>${subjSelect(subs, null)}`, onSubmit: async (fd) => { const t = (fd.get('title') || '').trim(); if (!t) return 'Escribe el nombre del mazo.'; await A.decks.create(t, fd.get('subject_id') || null); toast('Mazo creado'); render(); } }); };
+ACTS.delDeck = async (el) => { if (!(await confirmDlg('¿Eliminar el mazo y todas sus tarjetas?'))) return; try { await A.decks.remove(el.dataset.id); toast('Mazo eliminado'); render(); } catch (e) { toast(friendly(e), 'err'); } };
+
+S.cal = { y: new Date().getFullYear(), m: new Date().getMonth(), sel: today() };
+async function studyCalendar() {
+  const [exams, tasks, subjects] = await Promise.all([A.exams.list(), A.tasks.all(), A.subjects.list()]); S.subjects = subjects; S.examCache = exams;
+  const pend = tasks.filter((t) => t.status === 'pending' && t.due_date), { y, m, sel } = S.cal, first = new Date(y, m, 1), pad = (first.getDay() + 6) % 7, n = new Date(y, m + 1, 0).getDate();
+  const ex = new Set(exams.map((e) => e.exam_date)), tk = new Set(pend.map((t) => t.due_date)); let cells = '<div></div>'.repeat(pad);
+  for (let d = 1; d <= n; d++) { const s = iso(new Date(y, m, d)); cells += `<button aria-pressed="${s === sel}" class="${s === today() ? 'today' : ''}" data-act="calSel" data-v="${s}" aria-label="Día ${d}${ex.has(s) ? ', con examen' : ''}${tk.has(s) ? ', con tareas' : ''}"><span class="n">${d}</span><span class="row g3" style="height:6px">${ex.has(s) ? '<i class="dot s" style="background:var(--bad)"></i>' : ''}${tk.has(s) ? '<i class="dot s" style="background:var(--brand)"></i>' : ''}</span></button>`; }
+  const label = cap(first.toLocaleDateString('es-MX', { month: 'long', year: 'numeric' })), de = exams.filter((e) => e.exam_date === sel), dt = pend.filter((t) => t.due_date === sel), up = exams.filter((e) => e.exam_date >= today());
+  return `<div class="row between"><div></div><button class="btn sm" data-act="newExam">${ico('plus', 16, '#fff')}Examen</button></div>${card(`<div class="row between"><button class="btn sm sec" data-act="calMove" data-v="-1">Anterior</button><strong>${esc(label)}</strong><button class="btn sm sec" data-act="calMove" data-v="1">Siguiente</button></div><div class="cal">${['L', 'M', 'M', 'J', 'V', 'S', 'D'].map((x) => `<div class="h">${x}</div>`).join('')}${cells}</div><div class="row small muted g12"><span class="row g5"><i class="dot s" style="background:var(--bad)"></i>Examen</span><span class="row g5"><i class="dot s" style="background:var(--brand)"></i>Tarea</span></div>`)}
+  ${card(`<h2>${esc(dayLabel(sel))}</h2>${!de.length && !dt.length ? '<div class="muted">Nada programado para este día.</div>' : ''}${de.map((e) => `<div class="row g8"><i class="dot" style="background:var(--bad)"></i>${esc(e.title)}</div>`).join('')}${dt.map((t) => `<div class="row g8"><i class="dot" style="background:var(--brand)"></i>${esc(t.title)}</div>`).join('')}`)}
+  ${card(`<h2>Próximos exámenes</h2>${up.length ? up.map((e) => `<div class="row"><div class="grow"><div>${esc(e.title)}</div><div class="small muted">${esc(subjOf(subjects, e.subject_id)?.name || 'Sin materia')} · ${esc(dayLabel(e.exam_date))}</div></div><button class="ib" aria-label="Editar examen" data-act="editExam" data-id="${esc(e.id)}">${ico('edit', 18)}</button><button class="ib" aria-label="Eliminar examen" data-act="delExam" data-id="${esc(e.id)}">${ico('trash', 18)}</button></div>`).join('') : empty('calendar', 'Sin exámenes próximos', 'Registra tus exámenes para ver cuánto falta y recibir recomendaciones.')}`)}`;
+}
+ACTS.calSel = (el) => { S.cal.sel = el.dataset.v; render(); };
+ACTS.calMove = (el) => { const d = new Date(S.cal.y, S.cal.m + Number(el.dataset.v), 1); S.cal.y = d.getFullYear(); S.cal.m = d.getMonth(); render(); };
+async function examDialog(ex) {
+  const subs = S.subjects || await A.subjects.list();
+  openDialog({ title: ex ? 'Editar examen' : 'Nuevo examen', body: `<label>Nombre<input name="title" maxlength="160" value="${esc(ex?.title || '')}" required></label><label>Fecha<input type="date" name="date" value="${esc(ex?.exam_date || S.cal.sel)}" required></label>${subjSelect(subs, ex?.subject_id)}<label>Notas (opcional)<textarea name="notes" maxlength="2000">${esc(ex?.notes || '')}</textarea></label>`,
+    onSubmit: async (fd) => { const title = (fd.get('title') || '').trim(), date = fd.get('date') || ''; if (!title) return 'Escribe el nombre del examen.'; if (!isDate(date)) return 'Elige una fecha válida.'; await A.exams.save({ id: ex?.id, title, exam_date: date, subject_id: fd.get('subject_id') || null, notes: (fd.get('notes') || '').trim() || null }); toast(ex ? 'Examen actualizado' : 'Examen guardado'); render(); } });
+}
+ACTS.newExam = () => examDialog(null);
+ACTS.editExam = (el) => { const e = (S.examCache || []).find((x) => x.id === el.dataset.id); if (e) examDialog(e); };
+ACTS.delExam = async (el) => { if (!(await confirmDlg('¿Eliminar este examen?'))) return; try { await A.exams.remove(el.dataset.id); toast('Examen eliminado'); render(); } catch (e) { toast(friendly(e), 'err'); } };
+
+async function studySubjects() {
+  const [subjects, tasks, quizzes, attempts, counts] = await Promise.all([A.subjects.list(), A.tasks.all(), A.quizzes.list(), A.quizzes.attempts(), A.quizzes.counts()]); S.subjects = subjects;
+  return `<div class="row between"><div class="small muted">Organiza tareas, exámenes y juegos por materia.</div><button class="btn sm" data-act="newSubject">${ico('plus', 16, '#fff')}Nueva</button></div>` + (subjects.length ? subjects.map((s) => { const pend = tasks.filter((t) => t.subject_id === s.id && t.status === 'pending').length; const gs = quizzes.filter((q) => q.subject_id === s.id).map((q) => gprog(counts.get(q.id) || 0, attempts.filter((a) => a.quiz_id === q.id))); const av = gs.length ? gs.reduce((t, g) => t + g.ratio, 0) / gs.length : null; return `<div class="card sub"><div class="row"><i class="dot" style="background:${COLORS[s.color] || COLORS.slate}"></i><div class="grow"><strong>${esc(s.name)}</strong><div class="small muted">${pend} ${pend === 1 ? 'tarea pendiente' : 'tareas pendientes'}</div></div><button class="ib" aria-label="Editar ${esc(s.name)}" data-act="editSubject" data-id="${esc(s.id)}">${ico('edit', 18)}</button><button class="ib" aria-label="Eliminar ${esc(s.name)}" data-act="delSubject" data-id="${esc(s.id)}">${ico('trash', 18)}</button></div>${av !== null ? `<div class="small muted">Avance en juegos: ${Math.round(av * 100)}%</div>${bar(av)}` : ''}</div>`; }).join('') : card(empty('book', 'Aún no tienes materias', 'Crea tus materias para clasificar tareas, exámenes y tarjetas.')));
+}
+function subjectDialog(s) { openDialog({ title: s ? 'Editar materia' : 'Nueva materia', body: `<label>Nombre<input name="name" maxlength="80" value="${esc(s?.name || '')}" required></label><label>Color<select name="color">${SUBJECT_COLORS.map((c) => `<option value="${c}" ${(s?.color || 'violet') === c ? 'selected' : ''}>${COLOR_LABEL[c]}</option>`).join('')}</select></label>`, onSubmit: async (fd) => { const n = (fd.get('name') || '').trim(); if (!n) return 'Escribe el nombre de la materia.'; await A.subjects.save(s?.id, n, SUBJECT_COLORS.includes(fd.get('color')) ? fd.get('color') : 'violet'); toast(s ? 'Materia actualizada' : 'Materia creada'); render(); } }); }
+ACTS.newSubject = () => subjectDialog(null);
+ACTS.editSubject = async (el) => { const s = (S.subjects || await A.subjects.list()).find((x) => x.id === el.dataset.id); if (s) subjectDialog(s); };
+ACTS.delSubject = async (el) => { if (!(await confirmDlg('¿Eliminar la materia? Sus tareas, exámenes, mazos y juegos se conservan sin materia.'))) return; try { await A.subjects.remove(el.dataset.id); toast('Materia eliminada'); render(); } catch (e) { toast(friendly(e), 'err'); } };
+
+async function studyStats() {
+  const [attempts, quizzes, tasks, cards, counts] = await Promise.all([A.quizzes.attempts(), A.quizzes.list(), A.tasks.all(), A.decks.allCards(), A.quizzes.counts()]);
+  const days = [6, 5, 4, 3, 2, 1, 0].map((i) => { const d = addDays(-i); return { d, c: tasks.filter((t) => t.status === 'done' && t.completed_at && iso(new Date(t.completed_at)) === d).length }; }), max = Math.max(1, ...days.map((x) => x.c));
+  const reviewed = cards.reduce((s, c) => s + c.times_reviewed, 0), correct = cards.reduce((s, c) => s + c.times_correct, 0);
+  const games = quizzes.map((q) => ({ q, p: gprog(counts.get(q.id) || 0, attempts.filter((a) => a.quiz_id === q.id)) })).filter((g) => g.p.mastery !== null);
+  return card(`<h2>Tareas completadas (7 días)</h2>${days.some((x) => x.c) ? `<div class="bars">${days.map((x) => `<div><span>${x.c}</span><i style="height:${6 + x.c / max * 64}px;background:${x.c ? 'var(--ok)' : 'var(--border)'}"></i><span>${'DLMMJVS'[new Date(x.d + 'T00:00:00').getDay()]}</span></div>`).join('')}</div>` : '<div class="muted">Aún no hay tareas completadas esta semana.</div>'}`)
+    + card(`<h2>Dominio por juego</h2>${games.length ? games.map(({ q, p }) => `<div class="col"><div class="row between"><span>${esc(q.title)}</span><span class="small muted">${p.mastery}%</span></div>${bar(p.mastery / 100, 'var(--brand)')}</div>`).join('') : empty('chart', 'Sin resultados aún', 'Completa niveles de un juego para ver cuánto dominas.')}`)
+    + card(`<h2>Tarjetas</h2>${reviewed ? `<div>${Math.round(correct / reviewed * 100)}% de acierto en ${fmt(reviewed)} repasos</div>${bar(correct / reviewed)}` : '<div class="muted">Aún no has repasado tarjetas.</div>'}`);
+}
+
+const AFTER = [];
+
+/* ---------- DECK + flashcard study ---------- */
+VIEWS.deck = async ([id]) => {
+  const [deck, cards] = await Promise.all([A.decks.get(id), A.decks.cards(id)]); S.deckCards = cards;
+  const sd = S.sd && S.sd.id === id ? S.sd : null;
+  if (sd) {
+    if (sd.pos >= sd.queue.length) return card(`<h1>¡Repaso terminado!</h1><p>Sabías ${sd.known} de ${sd.queue.length} tarjetas.</p><button class="btn" data-act="sdExit">Volver al mazo</button>`, 'center');
+    const c = sd.queue[sd.pos];
+    return `<div class="row"><h1 class="grow">${esc(deck.title)}</h1><button class="btn sec sm" data-act="sdExit">Salir</button></div>${bar(sd.pos / sd.queue.length, 'var(--brand)')}<div class="small muted">${sd.pos + 1} de ${sd.queue.length}</div>
+    <button class="flash" data-act="sdFlip" aria-label="${sd.flip ? 'Mostrar pregunta' : 'Mostrar respuesta'}"><span><span class="small muted" style="display:block;margin-bottom:8px">${sd.flip ? 'Respuesta' : 'Pregunta'}</span>${esc(sd.flip ? c.back : c.front)}</span></button>
+    ${sd.flip ? `<div class="row"><button class="btn sec grow" data-act="sdAns" data-ok="0">Repasar de nuevo</button><button class="btn grow" data-act="sdAns" data-ok="1">La sabía</button></div>` : '<div class="small muted center">Toca la tarjeta para ver la respuesta</div>'}`;
+  }
+  return `<a class="btn ghost sm" href="#/study/cards">Volver</a><h1>${esc(deck.title)}</h1><div class="row"><button class="btn sm" data-act="newCard" data-id="${esc(id)}">${ico('plus', 16, '#fff')}Agregar tarjeta</button><button class="btn sec sm" data-act="sdStart" data-id="${esc(id)}" ${cards.length ? '' : 'disabled'}>Estudiar</button></div>`
+    + (cards.length ? cards.map((c) => `<div class="card sub"><div class="row"><div class="grow"><strong>${esc(c.front)}</strong><div class="small muted">${esc(c.back)}</div><div class="small muted">${c.times_reviewed ? `Acierto ${Math.round(c.times_correct / c.times_reviewed * 100)}% en ${c.times_reviewed} repasos` : 'Sin repasar'}</div></div><button class="ib" aria-label="Editar tarjeta" data-act="editCard" data-id="${esc(c.id)}" data-deck="${esc(id)}">${ico('edit', 18)}</button><button class="ib" aria-label="Eliminar tarjeta" data-act="delCard" data-id="${esc(c.id)}">${ico('trash', 18)}</button></div></div>`).join('') : card(empty('cards', 'Este mazo está vacío', 'Agrega tarjetas con una pregunta y su respuesta.')));
+};
+function cardDialog(deckId, c) { openDialog({ title: c ? 'Editar tarjeta' : 'Nueva tarjeta', body: `<label>Anverso (pregunta)<textarea name="front" maxlength="500" required>${esc(c?.front || '')}</textarea></label><label>Reverso (respuesta)<textarea name="back" maxlength="1000" required>${esc(c?.back || '')}</textarea></label>`, onSubmit: async (fd) => { const f = (fd.get('front') || '').trim(), b = (fd.get('back') || '').trim(); if (!f || !b) return 'Completa el anverso y el reverso.'; await A.decks.saveCard({ id: c?.id, deck_id: deckId, front: f, back: b }); toast(c ? 'Tarjeta actualizada' : 'Tarjeta creada'); render(); } }); }
+ACTS.newCard = (el) => cardDialog(el.dataset.id, null);
+ACTS.editCard = (el) => { const c = (S.deckCards || []).find((x) => x.id === el.dataset.id); if (c) cardDialog(el.dataset.deck, c); };
+ACTS.delCard = async (el) => { if (!(await confirmDlg('¿Eliminar esta tarjeta?'))) return; try { await A.decks.removeCard(el.dataset.id); toast('Tarjeta eliminada'); render(); } catch (e) { toast(friendly(e), 'err'); } };
+ACTS.sdStart = (el) => { const acc = (c) => (c.times_reviewed ? c.times_correct / c.times_reviewed : -1); S.sd = { id: el.dataset.id, queue: [...S.deckCards].sort((a, b) => acc(a) - acc(b)), pos: 0, flip: false, known: 0 }; render(); };
+ACTS.sdFlip = () => { S.sd.flip = !S.sd.flip; render(); };
+ACTS.sdExit = () => { S.sd = null; render(); };
+ACTS.sdAns = async (el) => { const ok = el.dataset.ok === '1', c = S.sd.queue[S.sd.pos]; try { await A.decks.review(c, ok); } catch (e) { return toast(friendly(e), 'err'); } if (ok) S.sd.known++; S.sd.flip = false; S.sd.pos++; render(); };
+
+/* ---------- GAME: levels, feedback, final exam ---------- */
+VIEWS.game = async ([id]) => {
+  if (!S.g || S.g.id !== id) S.g = { id, mode: 'path' };
+  if (!S.gc || S.gc.id !== id || S.gc.stale) { const [quiz, questions, attempts] = await Promise.all([A.quizzes.get(id), A.quizzes.questions(id), A.quizzes.attempts()]); S.gc = { id, quiz, questions, attempts: attempts.filter((a) => a.quiz_id === id) }; }
+  const G = S.g, { quiz, questions, attempts } = S.gc, p = gprog(questions.length, attempts);
+  if (G.mode === 'play') {
+    const q = G.items[G.idx], ok = G.picked === q.correct_index;
+    return `<div class="row"><button class="ib" aria-label="Salir del nivel" data-act="gExit">${ico('x', 22, 'var(--muted)')}</button><div class="grow">${bar((G.idx + (G.checked ? 1 : 0)) / G.items.length, 'var(--ok)')}</div><span class="small muted">${G.idx + 1}/${G.items.length}</span></div>
+    <h1 style="font-size:22px">${esc(q.prompt)}</h1><div class="col">${q.options.map((o, i) => { let c = 'opt'; if (G.checked && i === q.correct_index) c += ' right'; else if (G.checked && i === G.picked && !ok) c += ' wrong'; else if (i === G.picked) c += ' sel'; return `<button class="${c}" data-act="gPick" data-i="${i}" ${G.checked ? 'disabled' : ''}>${esc(o)}</button>`; }).join('')}</div>
+    ${G.checked ? `<div class="fb ${ok ? 'ok' : 'no'}" role="status"><div class="row">${ico(ok ? 'check' : 'x', 22, ok ? 'var(--ok)' : 'var(--bad)', 3)}<h2>${ok ? '¡Correcto!' : 'Casi'}</h2></div>${!ok ? `<div>Respuesta correcta: ${esc(q.options[q.correct_index])}</div>` : ''}${q.explanation ? `<div class="small">${esc(q.explanation)}</div>` : ''}<button class="btn" data-act="gNext">${G.idx + 1 < G.items.length ? 'Continuar' : 'Terminar'}</button></div>` : `<button class="btn" data-act="gCheck" ${G.picked === null ? 'disabled' : ''}>Comprobar</button>`}`;
+  }
+  if (G.mode === 'done') {
+    const pct = Math.round(G.score / G.total * 100), passed = G.score / G.total >= PASS;
+    if (G.level === 0) { const m = mastMsg(pct), weak = [...Array(p.L).keys()].map((i) => i + 1).filter((l) => (p.b.get(l) ?? 0) < 0.8); return card(`${ico('trophy', 36, 'var(--brand)')}<h1>${m[0]}</h1>${ring(pct / 100, pct + '%', 120)}<div>Dominas el ${pct}% de “${esc(quiz.title)}”.</div><div class="small muted">${m[1]}</div><div class="small muted">Acertaste ${G.score} de ${G.total} · +${xpFor(G.score, G.total)} XP</div>${weak.length ? `<div class="small muted">Para mejorar, repite los niveles: ${weak.join(', ')}.</div>` : ''}<button class="btn" data-act="gBack">Volver al camino</button><button class="btn sec" data-act="gStart" data-l="0">Intentar el examen otra vez</button>`, 'center'); }
+    return card(`<div class="badge ${passed ? 'okb' : 'nob'}">${ico(passed ? 'check' : 'x', 36, passed ? 'var(--ok)' : 'var(--bad)', 3)}</div><h1>${passed ? `¡Nivel ${G.level} completado!` : 'Inténtalo de nuevo'}</h1><div>Acertaste ${G.score} de ${G.total} (${pct}%)</div><div class="small muted">+${xpFor(G.score, G.total)} XP${!passed ? ` · Necesitas ${Math.ceil(G.total * PASS)} aciertos para avanzar` : ''}</div><button class="btn" data-act="${passed ? 'gBack' : 'gStart'}" data-l="${G.level}">${passed ? 'Continuar' : 'Reintentar'}</button>${!passed ? '<button class="btn sec" data-act="gBack">Volver al camino</button>' : ''}`, 'center');
+  }
+  const OFF = [0, 52, 0, -52]; let nodes = '';
+  for (let l = 1; l <= p.L; l++) { const done = l <= p.c, open = l <= p.c + 1; nodes += `<div class="nodew" style="transform:translateX(${OFF[(l - 1) % 4]}px)"><button class="node ${done ? 'done' : open ? 'cur' : 'lock'}" ${open ? '' : 'disabled'} data-act="gStart" data-l="${l}" aria-label="Nivel ${l}${done ? ', completado' : open ? '' : ', bloqueado'}">${done ? ico('check', 30, '#fff', 3) : open ? l : ico('lock', 26)}</button>${p.b.has(l) ? `<span class="small muted">${Math.round(p.b.get(l) * 100)}%</span>` : ''}</div>`; }
+  return `<div class="row between"><a class="btn ghost sm" href="#/study/games">Volver</a><a class="btn ghost sm" href="#/quizedit/${esc(id)}">Editar preguntas</a></div><h1>${esc(quiz.title)}</h1>`
+    + (questions.length ? card(`<div class="row between"><strong>Tu avance</strong><span class="small muted">${p.c} de ${p.L} niveles</span></div>${bar(p.ratio)}<div class="small muted">${p.mastery === null ? 'Completa niveles para saber cuánto dominas.' : `Dominio actual: ${p.mastery}%${p.fb === null ? ' (aún sin examen final)' : ''}`}</div>`) + `<div class="path">${nodes}<div class="nodew"><button class="node fin ${p.finalUnlocked ? 'cur' : 'lock'}" ${p.finalUnlocked ? '' : 'disabled'} data-act="gStart" data-l="0" aria-label="Examen final${p.finalUnlocked ? '' : ', bloqueado'}">${ico(p.finalUnlocked ? 'trophy' : 'lock', 36)}</button><span class="small muted">Examen final${p.fb !== null ? ` · ${Math.round(p.fb * 100)}%` : ''}</span></div></div>` : card(empty('quiz', 'Este juego no tiene preguntas', 'Agrega preguntas o crea un juego desde tus apuntes.', `<a class="btn sm" href="#/quizedit/${esc(id)}">Editar preguntas</a>`)));
+};
+ACTS.gStart = (el) => { const l = Number(el.dataset.l), qs = S.gc.questions; const items = l === 0 ? shuffle(qs).slice(0, FINALN) : qs.slice((l - 1) * QPL, l * QPL); if (!items.length) return; Object.assign(S.g, { mode: 'play', level: l, items, idx: 0, picked: null, checked: false, correct: 0 }); render(); };
+ACTS.gPick = (el) => { if (!S.g.checked) { S.g.picked = Number(el.dataset.i); render(); } };
+ACTS.gCheck = () => { const G = S.g; if (G.picked === null) return; G.checked = true; if (G.picked === G.items[G.idx].correct_index) G.correct++; render(); };
+ACTS.gNext = async () => { const G = S.g; if (G.idx + 1 < G.items.length) { G.idx++; G.picked = null; G.checked = false; return render(); } try { await A.quizzes.saveAttempt(G.id, G.correct, G.items.length, G.level); } catch (e) { toast(friendly(e), 'err'); } S.gc.stale = true; Object.assign(G, { mode: 'done', score: G.correct, total: G.items.length }); render(); };
+ACTS.gExit = async () => { if (await confirmDlg('Si sales ahora perderás el avance de este nivel.', 'Salir')) { S.g.mode = 'path'; render(); } };
+ACTS.gBack = () => { S.g.mode = 'path'; render(); };
+
+/* ---------- QUIZ EDIT ---------- */
+VIEWS.quizedit = async ([id]) => {
+  const [quiz, qs] = await Promise.all([A.quizzes.get(id), A.quizzes.questions(id)]); S.editQs = qs; S.editQuiz = id;
+  return `<a class="btn ghost sm" href="#/game/${esc(id)}">Volver</a><h1>${esc(quiz.title)}</h1><button class="btn sm" data-act="newQ">${ico('plus', 16, '#fff')}Agregar pregunta</button>` + (qs.length ? qs.map((q, i) => `<div class="card sub"><div class="row"><div class="grow"><strong>${i + 1}. ${esc(q.prompt)}</strong><div class="small muted">Correcta: ${esc(q.options[q.correct_index])}</div></div><button class="ib" aria-label="Editar pregunta" data-act="editQ" data-id="${esc(q.id)}">${ico('edit', 18)}</button><button class="ib" aria-label="Eliminar pregunta" data-act="delQ" data-id="${esc(q.id)}">${ico('trash', 18)}</button></div></div>`).join('') : card(empty('quiz', 'Sin preguntas todavía', 'Agrega preguntas de opción múltiple para poder jugar.')));
+};
+function qDialog(q) { const opts = [...(q?.options || []), '', '', '', ''].slice(0, 4); openDialog({ title: q ? 'Editar pregunta' : 'Nueva pregunta', body: `<label>Pregunta<textarea name="prompt" maxlength="500" required>${esc(q?.prompt || '')}</textarea></label>${opts.map((o, i) => `<label>Opción ${i + 1}${i < 2 ? '' : ' (opcional)'}<input name="o${i}" maxlength="200" value="${esc(o)}"></label>`).join('')}<label>Respuesta correcta<select name="ci">${[0, 1, 2, 3].map((i) => `<option value="${i}" ${(q?.correct_index || 0) === i ? 'selected' : ''}>Opción ${i + 1}</option>`).join('')}</select></label>`,
+  onSubmit: async (fd) => { const prompt = (fd.get('prompt') || '').trim(), all = [0, 1, 2, 3].map((i) => (fd.get('o' + i) || '').trim()), ci = Number(fd.get('ci')); const options = all.filter(Boolean); if (!prompt) return 'Escribe la pregunta.'; if (options.length < 2) return 'Agrega al menos 2 opciones.'; if (!all[ci]) return 'La respuesta correcta no puede estar vacía.'; if (new Set(options).size !== options.length) return 'Las opciones no pueden repetirse.';
+    await A.quizzes.saveQuestion({ id: q?.id, quiz_id: S.editQuiz, prompt, options, correct_index: options.indexOf(all[ci]), position: q?.position ?? S.editQs.length }); S.gc = null; toast(q ? 'Pregunta actualizada' : 'Pregunta agregada'); render(); } }); }
+ACTS.newQ = () => qDialog(null);
+ACTS.editQ = (el) => { const q = S.editQs.find((x) => x.id === el.dataset.id); if (q) qDialog(q); };
+ACTS.delQ = async (el) => { if (!(await confirmDlg('¿Eliminar esta pregunta?'))) return; try { await A.quizzes.removeQuestion(el.dataset.id); S.gc = null; toast('Pregunta eliminada'); render(); } catch (e) { toast(friendly(e), 'err'); } };
+
+/* ---------- NOTES (photos/files) + AI game ---------- */
+S.nsel = new Set(); S.nsub = null;
+VIEWS.notes = async () => {
+  const [notes, subjects, quota] = await Promise.all([A.notes.list(), A.subjects.list(), A.quota()]); S.subjects = subjects; S.quota = quota; S.notesCache = notes;
+  const list = notes.filter((n) => !S.nsub || n.subject_id === S.nsub), left = Math.max(0, quota.generate_per_day - quota.generate_used_today);
+  AFTER.push(async () => { for (const n of list.filter((x) => x.kind === 'photo')) { const u = await A.notes.url(n.storage_path); const im = $(`[data-thumb="${CSS.escape(n.id)}"]`); if (u && im) { im.innerHTML = `<img alt="Vista previa de ${esc(n.title)}" src="${esc(u)}">`; } } });
+  return `<h1>Apuntes</h1>${card(`<div class="small muted">Plan ${quota.plan === 'premium' ? 'Premium' : 'Gratis'} · Hoy ${quota.uploads_today} de ${quota.upload_per_day} subidas · Guardados ${quota.uploads_total} de ${quota.upload_max_total} · Máx. ${quota.upload_max_mb} MB por archivo</div>${bar(Math.min(1, quota.uploads_today / Math.max(1, quota.upload_per_day)), 'var(--brand)')}${quota.plan === 'free' ? '<a class="btn ghost sm" href="#/premium">Más límites con Premium</a>' : ''}`)}
+  <div class="row wrap"><label class="btn grow">${ico('camera', 18, '#fff')}Tomar foto<input type="file" accept="image/jpeg,image/png,image/webp" capture="environment" hidden data-file="note"></label><label class="btn sec grow">${ico('image', 18)}Galería<input type="file" accept="image/jpeg,image/png,image/webp" hidden data-file="note"></label><label class="btn sec grow">${ico('file', 18)}Archivo<input type="file" accept="application/pdf,text/plain,image/jpeg,image/png,image/webp" hidden data-file="note"></label></div>
+  ${subjects.length ? `<div class="col"><div class="small muted">Materia para lo que subas</div><div class="chips"><button class="chip" aria-pressed="${!S.nsub}" data-act="nsub" data-v="">Todas</button>${subjects.map((s) => `<button class="chip" aria-pressed="${S.nsub === s.id}" data-act="nsub" data-v="${esc(s.id)}">${esc(s.name)}</button>`).join('')}</div></div>` : ''}
+  ${card(list.length ? list.map((n) => `<div class="row notei"><button class="cb brandc" role="checkbox" aria-checked="${S.nsel.has(n.id)}" aria-label="Seleccionar ${esc(n.title)}" data-act="nsel" data-id="${esc(n.id)}">${S.nsel.has(n.id) ? ico('check', 14, '#fff', 3) : ''}</button><div class="thumb" data-thumb="${esc(n.id)}">${ico(n.kind === 'photo' ? 'image' : 'file', 22, 'var(--brand)')}</div><div class="grow"><div class="ell">${esc(n.title)}</div><div class="small muted">${(n.size_bytes / 1048576).toFixed(1)} MB · ${esc(new Date(n.created_at).toLocaleDateString('es-MX', { day: 'numeric', month: 'short' }))}</div></div><button class="ib" aria-label="Eliminar ${esc(n.title)}" data-act="delNote" data-id="${esc(n.id)}">${ico('trash', 18)}</button></div>`).join('') : empty('camera', 'Sube tus apuntes', 'Toma una foto de tu cuaderno o sube un PDF. Después la IA crea un juego para estudiar para tu examen.'), 'nopad')}
+  ${card(`<strong>Crear juego con IA</strong><div class="small muted">Elige hasta 5 apuntes. Te quedan ${left} ${left === 1 ? 'juego' : 'juegos'} hoy.</div><button class="btn" data-act="mkGame" ${S.nsel.size && left ? '' : 'disabled'}>${ico('sparkle', 18, '#fff')}${S.nsel.size ? `Crear juego (${S.nsel.size})` : 'Selecciona apuntes'}</button>`)}`;
+};
+ACTS.nsub = (el) => { S.nsub = el.dataset.v || null; render(); };
+ACTS.nsel = (el) => { const id = el.dataset.id; if (S.nsel.has(id)) S.nsel.delete(id); else if (S.nsel.size < 5) S.nsel.add(id); render(); };
+ACTS.delNote = async (el) => { const n = (S.notesCache || []).find((x) => x.id === el.dataset.id); if (!n || !(await confirmDlg(`¿Eliminar “${n.title}”? Se borra el archivo guardado.`))) return; try { await A.notes.remove(n); S.nsel.delete(n.id); toast('Apunte eliminado'); render(); } catch (e) { toast(friendly(e), 'err'); } };
+async function handleNoteFile(input) {
+  const f = input.files && input.files[0]; input.value = ''; if (!f) return;
+  const toTutor = input.dataset.file === 'chat';
+  try { toast('Subiendo…'); const n = await A.notes.upload(f, toTutor ? null : S.nsub, (S.quota || await A.quota()).upload_max_mb); if (toTutor) { if (S.chat.files.length < 3) S.chat.files.push(n); renderChat(); } toast('Apunte guardado'); if (!toTutor) render(); } catch (e) { toast(friendly(e), 'err'); }
+}
+ACTS.mkGame = () => { const q = S.quota, max = Math.max(5, Math.floor(q.generate_max_items / 5) * 5), opts = []; for (let n = 5; n <= max; n += 5) opts.push(n);
+  openDialog({ title: 'Crear juego de estudio', submit: 'Crear juego', body: `<p>Se usarán ${S.nsel.size} ${S.nsel.size === 1 ? 'apunte' : 'apuntes'}. Cada 5 preguntas forman un nivel y al final hay un examen para saber cuánto dominas.</p><label>Preguntas<select name="count">${opts.map((n) => `<option value="${n}" ${n === Math.min(10, max) ? 'selected' : ''}>${n}</option>`).join('')}</select></label><p class="small muted">Tus apuntes se envían al servicio de IA solo para crear este juego. No subas fotos de personas ni datos personales. La IA puede equivocarse: revisa las respuestas con tu libro.</p>`,
+    onSubmit: async (fd) => { try { const r = await A.fn('ai-generate-game', { note_ids: [...S.nsel], subject_id: S.nsub, count: Number(fd.get('count')) }); S.nsel.clear(); S.gc = null; toast('¡Tu juego está listo!'); location.hash = `#/game/${r.quiz_id}`; } catch (e) { return friendly(e); } } }); };
+
+/* ---------- TUTOR (Profe Flow) ---------- */
+S.chat = { msgs: [], files: [], busy: false, problem: null };
+VIEWS.tutor = async () => {
+  S.quota = await A.quota(); const q = S.quota, used = q.used, st = Math.min(1, used / Math.max(1, q.token_limit));
+  AFTER.push(() => renderChat());
+  return `<div class="row between"><h1>${CONFIG.TUTOR}</h1><button class="btn sec sm" data-act="chatNew">Nueva</button></div>${card(`<div class="small muted">Plan ${q.plan === 'premium' ? 'Premium' : 'Gratis'} · ${fmt(Math.max(0, q.token_limit - used))} tokens disponibles ${q.period === 'day' ? 'hoy' : 'este mes'}</div>${bar(st, st > .9 ? 'var(--bad)' : 'var(--brand)')}<div class="small muted">Usaste ${fmt(used)} de ${fmt(q.token_limit)}. Se renueva el ${esc(new Date(q.resets_at).toLocaleString('es-MX', { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' }))}.</div>`)}<div id="chat" class="col"></div>
+  <div class="chatbar"><div id="chatfiles" class="chips"></div><div class="row g4"><label class="ib" aria-label="Tomar foto">${ico('camera', 20, 'var(--brand)')}<input type="file" accept="image/jpeg,image/png,image/webp" capture="environment" hidden data-file="chat"></label><label class="ib" aria-label="Elegir foto">${ico('image', 20, 'var(--brand)')}<input type="file" accept="image/jpeg,image/png,image/webp" hidden data-file="chat"></label><label class="ib" aria-label="Adjuntar archivo">${ico('file', 20, 'var(--brand)')}<input type="file" accept="application/pdf,text/plain" hidden data-file="chat"></label><textarea id="chatin" rows="1" maxlength="2000" placeholder="Escribe tu pregunta…" aria-label="Escribe tu pregunta"></textarea><button class="btn" data-act="chatSend">${ico('send', 16, '#fff')}Enviar</button></div></div>
+  <div class="small muted">${CONFIG.TUTOR} puede equivocarse. Verifica lo importante con tu libro o tu maestro. Tus archivos se envían al servicio de IA solo para responderte; no subas datos personales.</div>`;
+};
+function renderChat() {
+  const c = $('#chat'); if (!c) return; const { msgs, files, busy, problem } = S.chat;
+  c.innerHTML = (msgs.length ? msgs.map((m) => `<div class="bubble ${m.role}">${(m.files || []).map((f) => `<div class="small">${ico('file', 14, '#fff')} ${esc(f)}</div>`).join('')}<div class="pre">${esc(m.content)}</div></div>`).join('') : empty('sparkle', `Pregúntale a ${CONFIG.TUTOR}`, 'Matemáticas, ciencias, historia, redacción, inglés y más. Toma una foto de tu tarea o sube un archivo y te explica paso a paso. La conversación no se guarda al salir.'))
+    + (busy ? '<div class="muted" role="status">Pensando…</div>' : '') + (problem ? `<div class="card errc" role="alert">${esc(problem)}</div>` : '');
+  $('#chatfiles').innerHTML = files.map((f) => `<span class="chip" aria-pressed="true">${esc(f.title)} <button class="ib sm" aria-label="Quitar ${esc(f.title)}" data-act="chatRm" data-id="${esc(f.id)}">${ico('x', 12)}</button></span>`).join('');
+  c.scrollTop = c.scrollHeight; window.scrollTo(0, document.body.scrollHeight);
+}
+ACTS.chatNew = () => { S.chat = { msgs: [], files: [], busy: false, problem: null }; renderChat(); };
+ACTS.chatRm = (el) => { S.chat.files = S.chat.files.filter((f) => f.id !== el.dataset.id); renderChat(); };
+ACTS.chatSend = async () => {
+  const inp = $('#chatin'), text = (inp.value || '').trim(), C = S.chat; if (!text || C.busy) return;
+  C.msgs.push({ role: 'user', content: text, files: C.files.map((f) => f.title) }); const ids = C.files.map((f) => f.id); C.files = []; inp.value = ''; C.busy = true; C.problem = null; renderChat();
+  try { const r = await A.fn('ai-tutor', { messages: C.msgs.map(({ role, content }) => ({ role, content })), note_ids: ids }); C.msgs.push({ role: 'assistant', content: r.reply }); }
+  catch (e) { C.problem = friendly(e); } finally { C.busy = false; renderChat(); }
+};
+
+/* ---------- PREMIUM ---------- */
+VIEWS.premium = async () => {
+  const [ent, limits] = await Promise.all([A.ent(), A.limits()]); const f = limits.find((l) => l.plan === 'free'), p = limits.find((l) => l.plan === 'premium');
+  const active = ent && ent.plan === 'premium' && (!ent.expires_at || new Date(ent.expires_at) > new Date());
+  const per = (l) => (l.period === 'day' ? 'por día' : 'por mes');
+  const rows = f && p ? [['Tokens de IA', `${fmt(f.token_limit)} ${per(f)}`, `${fmt(p.token_limit)} ${per(p)}`], ['Juegos con IA por día', fmt(f.generate_per_day), fmt(p.generate_per_day)], ['Preguntas por juego', `hasta ${f.generate_max_items}`, `hasta ${p.generate_max_items}`], ['Fotos y archivos por día', fmt(f.upload_per_day), fmt(p.upload_per_day)], ['Apuntes guardados', fmt(f.upload_max_total), fmt(p.upload_max_total)], ['Tamaño por archivo', `${f.upload_max_mb} MB`, `${p.upload_max_mb} MB`]] : [];
+  const back = new URLSearchParams(location.search).get('checkout') === 'success' ? card('<p>Gracias. Si pagaste con tarjeta, tu plan se activa en unos segundos. Si pagaste en OXXO, se activa cuando se acredite el voucher.</p><button class="btn sec sm" data-act="reload">Actualizar estado</button>', 'okc') : '';
+  return `<h1>StudyFlow Premium</h1>${back}${card(`<div class="row g8">${ico('crown', 22, 'var(--brand)')}<h2>Tu plan: ${active ? 'Premium' : 'Gratis'}</h2></div>${active && ent.expires_at ? `<div class="small muted">Activo hasta el ${esc(new Date(ent.expires_at).toLocaleDateString('es-MX', { day: 'numeric', month: 'long', year: 'numeric' }))}.</div>` : ''}`)}
+  ${card(`<div class="row g8 base"><h2 style="font-size:22px">$69 MXN al mes</h2><span class="strike">$99</span></div><div class="small muted">Precio de lanzamiento por tiempo limitado. Precio regular: $99 MXN al mes.</div>${rows.map((r) => `<div><div class="small muted">${r[0]}</div><div class="cmp"><span class="muted">Gratis · ${r[1]}</span><span class="b">Premium · ${r[2]}</span></div></div>`).join('')}<div class="row g8 top">${ico('check', 18, 'var(--ok)')}<span>Respuestas más largas y conversaciones con más contexto</span></div>
+  <button class="btn" data-act="pay" data-m="card">Pagar con tarjeta · $69/mes</button><button class="btn sec" data-act="pay" data-m="oxxo">Pagar en OXXO · $69 por 30 días</button><div class="small muted">Tarjeta: se renueva cada mes y puedes cancelar. OXXO: pago único de 30 días con voucher. El plan solo se activa cuando el pago se confirma en nuestros servidores.</div><div class="small muted">Al pagar aceptas los <a href="#/legal/terms">Términos</a> y la <a href="#/legal/refunds">Política de cancelación y reembolsos</a>. La suscripción con tarjeta se renueva cada mes hasta que la canceles.</div>`)}`;
+};
+ACTS.pay = async (el) => { el.disabled = true; try { const r = await A.fn('create-checkout', { method: el.dataset.m }); if (!isStripeUrl(r.url)) throw uerr('No se pudo iniciar el pago. Inténtalo más tarde.', 'payments_unavailable'); location.href = r.url; } catch (e) { toast(friendly(e), 'err'); el.disabled = false; } };
+
+/* ---------- FOCUS TIMER ---------- */
+S.timer = { phase: 'idle', start: 0, end: 0 };
+const mmss = (n) => `${String(Math.floor(n / 60)).padStart(2, '0')}:${String(n % 60).padStart(2, '0')}`;
+VIEWS.focus = async () => {
+  const [prof, minutes] = [await A.profile.get(), await A.sessions.week().catch(() => 0)]; if (!S.method) S.method = await A.method.get().catch(() => null);
+  const pl = mSession(S.method || EMPTY_M()), T = S.timer, left = T.phase === 'idle' ? pl.focus * 60 : Math.max(0, Math.ceil((T.end - Date.now()) / 1000)), total = (T.phase === 'break' ? pl.rest : pl.focus) * 60;
+  return `<h1>Sesión de enfoque</h1>${card(`<div class="small muted" id="tmsg">${T.phase === 'idle' ? 'Tu bloque ideal' : T.phase === 'focus' ? 'Enfócate en una sola cosa' : 'Descansa: estírate y toma agua'}</div><div id="tring">${ring(T.phase === 'idle' ? 0 : 1 - left / total, mmss(left), 170)}</div><div class="small muted">${pl.focus} min de enfoque${pl.rest ? ` + ${pl.rest} de descanso` : ''}. Adaptado a tus respuestas.</div>${T.phase === 'idle' ? `<button class="btn" data-act="fStart">${ico('target', 18, '#fff')}Empezar</button>` : `<button class="btn sec" data-act="fStop">${T.phase === 'focus' ? 'Terminar y guardar' : 'Saltar descanso'}</button>`}`, 'center')}${card(`<div class="row between"><strong>Esta semana</strong><span class="small muted">${fmt(minutes)} de ${fmt(prof.weekly_goal_minutes)} min</span></div>${bar(Math.min(1, minutes / Math.max(1, prof.weekly_goal_minutes)))}<div class="small muted">Solo cuentan los bloques que terminas o guardas. Mantén esta pestaña abierta mientras estudias.</div>`)}`;
+};
+function timerTick() {
+  clearInterval(S.tick); S.tick = setInterval(async () => {
+    const T = S.timer; if (T.phase === 'idle') return clearInterval(S.tick);
+    const pl = mSession(S.method || EMPTY_M()), left = Math.max(0, Math.ceil((T.end - Date.now()) / 1000)), total = (T.phase === 'break' ? pl.rest : pl.focus) * 60, r = $('#tring');
+    if (r) r.innerHTML = ring(1 - left / total, mmss(left), 170);
+    if (left === 0) { clearInterval(S.tick); if (T.phase === 'focus') { try { await A.sessions.add(pl.focus); toast(`+${pl.focus} min de estudio`); } catch (e) { toast(friendly(e), 'err'); } if (pl.rest) { S.timer = { phase: 'break', start: Date.now(), end: Date.now() + pl.rest * 60000 }; timerTick(); } else S.timer = { phase: 'idle', start: 0, end: 0 }; } else S.timer = { phase: 'idle', start: 0, end: 0 }; if (S.route.startsWith('focus')) render(); }
+  }, 500);
+}
+ACTS.fStart = () => { const pl = mSession(S.method || EMPTY_M()); S.timer = { phase: 'focus', start: Date.now(), end: Date.now() + pl.focus * 60000 }; timerTick(); render(); };
+ACTS.fStop = async () => { const T = S.timer; if (T.phase === 'focus') { const m = Math.floor((Date.now() - T.start) / 60000); if (m >= 1) { try { await A.sessions.add(m); toast(`+${m} min de estudio`); } catch (e) { toast(friendly(e), 'err'); } } } clearInterval(S.tick); S.timer = { phase: 'idle', start: 0, end: 0 }; render(); };
+
+/* ---------- ONBOARDING ---------- */
+VIEWS.onboarding = async () => {
+  if (!S.ob) { const prev = await A.method.get().catch(() => null); S.ob = { step: 0, a: { ...EMPTY_M(), ...(prev || {}) } }; }
+  const O = S.ob, tot = MQ.length, a = O.a;
+  if (O.step >= tot) return `<div class="row">${`<div class="grow">${bar(1, 'var(--brand)')}</div>`}<span class="small muted">Listo</span></div>${ico('sparkle', 32, 'var(--brand)')}<h1>Tu plan de estudio</h1>${card(`<div>${esc(mSummary(a))}</div><div class="small muted">Sesión de enfoque: ${mSession(a).focus} min · Meta semanal: ${mWeekly(a)} min</div>`)}<h2>Para empezar</h2>${mActions(a).map((x) => card(`<strong>${esc(x[0])}</strong><span class="small muted">${esc(x[1])}</span>`)).join('')}<div class="small muted">Adaptamos tu panel, tus sesiones y cómo te explica ${CONFIG.TUTOR}. Puedes cambiarlo cuando quieras en Perfil.</div><button class="btn" data-act="obDone">${ico('check', 18, '#fff')}Empezar a estudiar</button><button class="btn ghost sm" data-act="obBack0">Cambiar respuestas</button>`;
+  const q = MQ[O.step], cur = a[q.id];
+  return `<div class="row"><div class="grow">${bar(O.step / tot, 'var(--brand)')}</div><span class="small muted">${O.step + 1} de ${tot}</span></div><div>${O.step === 0 ? '<div class="small" style="color:var(--brand)">Conozcámonos para adaptar StudyFlow a ti</div>' : ''}<h1 style="font-size:24px">${esc(q.t)}</h1>${q.h ? `<div class="small muted">${esc(q.h)}</div>` : ''}</div>
+  <div class="col">${q.o.map((o) => { const on = q.multi ? a.hardSubjects.includes(o[0]) : String(cur) === o[0]; return `<button class="opt ${on ? 'sel' : ''}" role="${q.multi ? 'checkbox' : 'radio'}" aria-checked="${on}" data-act="obPick" data-v="${esc(o[0])}"><strong>${esc(o[1])}</strong>${o[2] ? `<div class="small muted">${esc(o[2])}</div>` : ''}</button>`; }).join('')}</div>
+  <div class="row">${O.step > 0 ? '<button class="btn sec grow" data-act="obPrev">Atrás</button>' : ''}<button class="btn grow" style="flex:2" data-act="obNext" ${q.multi || (cur !== null && cur !== undefined) ? '' : 'disabled'}>${O.step === tot - 1 ? 'Ver mi plan' : 'Continuar'}</button></div><button class="btn ghost sm" data-act="obSkip">Saltar por ahora</button>`;
+};
+ACTS.obPick = (el) => { const q = MQ[S.ob.step], v = el.dataset.v, a = S.ob.a; if (q.multi) a.hardSubjects = a.hardSubjects.includes(v) ? a.hardSubjects.filter((x) => x !== v) : [...a.hardSubjects, v]; else a[q.id] = q.id === 'dailyMinutes' ? Number(v) : v; render(); };
+ACTS.obNext = () => { S.ob.step++; render(); };
+ACTS.obPrev = () => { S.ob.step = Math.max(0, S.ob.step - 1); render(); };
+ACTS.obBack0 = () => { S.ob.step = 0; render(); };
+async function obFinish(a) { try { await A.method.save(a); S.method = a; S.onboarded = true; S.ob = null; toast('Plan guardado'); location.hash = '#/home'; } catch (e) { toast(friendly(e), 'err'); } }
+ACTS.obDone = () => obFinish(sanitizeAnswers(S.ob.a));
+ACTS.obSkip = () => obFinish(EMPTY_M());
+
+/* ---------- PROFILE ---------- */
+VIEWS.profile = async () => {
+  const p = await A.profile.get(); S.profile = p;
+  const GR = MQ[0].o;
+  return `<h1>Perfil</h1>${card(`<div class="small muted">${esc(S.user.email)}</div><label>Nombre<input id="pf-name" maxlength="80" value="${esc(p.display_name)}"></label><label>Grado<select id="pf-grade"><option value="">Sin indicar</option>${GR.map((g) => `<option value="${g[0]}" ${p.grade_level === g[0] ? 'selected' : ''}>${g[1]}</option>`).join('')}</select></label><label>Objetivo semanal (tareas completadas)<input id="pf-goal" type="number" min="1" max="100" value="${p.weekly_goal_tasks}"></label>
+  <h2>Correos</h2><label class="row sw"><input type="checkbox" id="pf-rem" ${p.notify_reminders ? 'checked' : ''}><span>Recordatorios de tareas y exámenes<div class="small muted">Te avisamos de lo que vence y cuando llevas varios días sin entrar.</div></span></label><label class="row sw"><input type="checkbox" id="pf-promo" ${p.notify_promos ? 'checked' : ''}><span>Novedades y promociones<div class="small muted">Máximo un correo por semana. Si eres menor de edad, pide permiso a tu mamá, papá o tutor.</div></span></label><div id="pf-err" class="derr" role="alert"></div><button class="btn" data-act="saveProfile">Guardar cambios</button>`)}
+  ${card(`<h2>Más</h2><a class="btn sec" href="#/onboarding">${ico('sparkle', 18)}Cambiar mi método de estudio</a><a class="btn sec" href="#/premium">${ico('crown', 18)}StudyFlow Premium</a><button class="btn sec" data-act="exportData">Descargar mis datos</button><a class="btn ghost sm" href="#/legal/privacy">Aviso de privacidad</a><a class="btn ghost sm" href="#/legal/terms">Términos de uso</a>`)}
+  <button class="btn sec" data-act="logout">Cerrar sesión</button><button class="btn ghost sm danger-t" data-act="delAccount">Eliminar mi cuenta</button>`;
+};
+ACTS.saveProfile = async () => {
+  const name = $('#pf-name').value.trim(), goal = Number($('#pf-goal').value), err = $('#pf-err'); err.textContent = '';
+  if (!name) return (err.textContent = 'Escribe tu nombre.'); if (!Number.isInteger(goal) || goal < 1 || goal > 100) return (err.textContent = 'Elige un número entre 1 y 100.');
+  try { await A.profile.update({ display_name: name, grade_level: $('#pf-grade').value || null, weekly_goal_tasks: goal, notify_reminders: $('#pf-rem').checked, notify_promos: $('#pf-promo').checked }); toast('Perfil guardado'); } catch (e) { err.textContent = friendly(e); }
+};
+ACTS.exportData = async () => { try { const json = await A.exportAll(), url = URL.createObjectURL(new Blob([json], { type: 'application/json' })), a = document.createElement('a'); a.href = url; a.download = 'mis-datos-studyflow.json'; a.click(); setTimeout(() => URL.revokeObjectURL(url), 1000); toast('Datos listos'); } catch (e) { toast(friendly(e), 'err'); } };
+ACTS.logout = async () => { await sb.auth.signOut(); };
+ACTS.delAccount = () => openDialog({ title: 'Eliminar mi cuenta', submit: 'Eliminar para siempre', danger: true, body: `<p>Se borran tu perfil, tareas, materias, apuntes, juegos y resultados. No se puede deshacer. Si tienes una suscripción con tarjeta se cancela.</p><label>Escribe ELIMINAR para confirmar<input name="phrase" autocomplete="off"></label>${((S.user.app_metadata || {}).provider || 'email') === 'email' ? '<label>Tu contraseña<input name="pw" type="password" autocomplete="current-password"></label>' : '<p class="small muted">Por seguridad, si tu inicio de sesión fue hace más de 10 minutos tendrás que cerrar sesión y volver a entrar con tu cuenta antes de eliminarla.</p>'}`,
+  onSubmit: async (fd) => { if ((fd.get('phrase') || '').trim() !== 'ELIMINAR') return 'Escribe ELIMINAR para confirmar.'; if (((S.user.app_metadata || {}).provider || 'email') === 'email') { const pw = fd.get('pw') || ''; if (!pw) return 'Escribe tu contraseña para confirmar que eres tú.'; const re = await sb.auth.signInWithPassword({ email: S.user.email, password: pw }); if (re.error) return 'Contraseña incorrecta.'; }
+    try { await A.fn('delete-account', { confirm: 'ELIMINAR' }); } catch (e) { return friendly(e); } await sb.auth.signOut(); toast('Tu cuenta fue eliminada'); } });
+
+/* ---------- LEGAL (readable without signing in) ---------- */
+const LEGAL_LINKS = [['terms', 'Términos'], ['privacy', 'Privacidad'], ['refunds', 'Cancelación y reembolsos'], ['ai', 'Reglas de IA'], ['deletion', 'Eliminar mi cuenta']];
+const legalBody = (key) => { const d = legalDoc(key); return `<h1>${esc(d.title)}</h1>${legalReady() ? '' : card('<div class="small" style="color:var(--warn)">Borrador: faltan los datos del responsable (edítalos al inicio del archivo index.html). Que un abogado lo revise antes de publicar.</div>', 'warnc')}${d.sections.map((x) => `<div class="col"><h2>${esc(x.h)}</h2>${x.p.map((t) => `<p class="muted">${esc(t)}</p>`).join('')}</div>`).join('')}<div class="chips">${LEGAL_LINKS.filter((l) => l[0] !== key).map((l) => `<a class="chip" href="#/legal/${l[0]}">${esc(l[1])}</a>`).join('')}</div>`; };
+VIEWS.legal = async ([doc = 'privacy']) => `<button class="btn ghost sm" data-act="back">Volver</button>${legalBody(doc)}`;
+ACTS.back = () => { if (history.length > 1) history.back(); else location.hash = '#/home'; };
+const legalFooter = () => `<footer class="small muted center foot">${LEGAL_LINKS.slice(0, 4).map((l) => `<a href="#/legal/${l[0]}">${esc(l[1])}</a>`).join(' · ')}</footer>`;
+function showLegalPage(key) {
+  document.body.className = 'noshell'; $('#boot').hidden = true; $('#shell').hidden = true; const a = $('#auth'); a.hidden = false;
+  a.innerHTML = `<div class="authw"><div class="row g12">${LOGO(40)}<strong>StudyFlow MX</strong></div><button class="btn ghost sm" data-act="legalBack">← Volver a StudyFlow MX</button>${legalBody(key)}</div>`;
+}
+ACTS.legalBack = () => { history.replaceState(null, '', location.pathname + location.search); showAuth(); };
+
+/* ---------- AUTH SCREENS ---------- */
+const authBox = () => $('#auth');
+const GOOGLE_G = '<svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path fill="#4285F4" d="M17.64 9.2045c0-.6381-.0573-1.2518-.1636-1.8409H9v3.4814h4.8436c-.2086 1.125-.8427 2.0782-1.7959 2.7164v2.2581h2.9087c1.7018-1.5668 2.6836-3.874 2.6836-6.615z"/><path fill="#34A853" d="M9 18c2.43 0 4.4673-.806 5.9564-2.1805l-2.9087-2.2581c-.8059.54-1.8368.859-3.0477.859-2.344 0-4.3282-1.5831-5.036-3.7104H.9574v2.3318C2.4382 15.9832 5.4818 18 9 18z"/><path fill="#FBBC05" d="M3.964 10.71c-.18-.54-.2822-1.1168-.2822-1.71s.1023-1.17.2823-1.71V4.9582H.9573A8.9965 8.9965 0 0 0 0 9c0 1.4523.3477 2.8268.9573 4.0418L3.964 10.71z"/><path fill="#EA4335" d="M9 3.5795c1.3214 0 2.5077.4541 3.4405 1.346l2.5813-2.5814C13.4632.8918 11.426 0 9 0 5.4818 0 2.4382 2.0168.9573 4.9582L3.964 7.29C4.6718 5.1627 6.6559 3.5795 9 3.5795z"/></svg>';
+const APPLE_A = '<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12.152 6.896c-.948 0-2.415-1.078-3.96-1.04-2.04.027-3.91 1.183-4.961 3.014-2.117 3.675-.546 9.103 1.519 12.09 1.013 1.454 2.208 3.09 3.792 3.039 1.52-.065 2.09-.987 3.935-.987 1.831 0 2.35.987 3.96.948 1.637-.026 2.676-1.48 3.676-2.948 1.156-1.688 1.636-3.325 1.662-3.415-.039-.013-3.182-1.221-3.22-4.857-.026-3.04 2.48-4.494 2.597-4.559-1.429-2.09-3.623-2.324-4.39-2.376-2-.156-3.675 1.09-4.61 1.09zM15.53 3.83c.843-1.012 1.4-2.427 1.245-3.83-1.207.052-2.662.805-3.532 1.818-.78.896-1.454 2.338-1.273 3.714 1.338.104 2.715-.688 3.559-1.701"/></svg>';
+const SOCIAL = { google: ['Google', GOOGLE_G, 'sbtn'], apple: ['Apple', APPLE_A, 'sbtn dark'] };
+/* Which social providers are enabled in Supabase? The page only shows buttons that will actually work. */
+async function loadProviders() { try { const r = await fetch(`${CONFIG.URL}/auth/v1/settings`, { headers: { apikey: CONFIG.KEY } }); if (!r.ok) return []; const j = await r.json(); return ['google', 'apple'].filter((k) => j.external && j.external[k] === true); } catch { return []; } }
+function renderSocial() {
+  const box = $('#social'); if (!box) return; const list = S.providers || [];
+  box.innerHTML = list.length ? `<div class="col">${list.map((k) => `<button type="button" class="${SOCIAL[k][2]}" data-act="oauth" data-p="${k}">${SOCIAL[k][1]}<span>Continuar con ${SOCIAL[k][0]}</span></button>`).join('')}</div><div class="divider"><span>o con tu correo</span></div>` : '';
+}
+ACTS.oauth = async (el) => {
+  el.disabled = true; const r = await sb.auth.signInWithOAuth({ provider: el.dataset.p, options: { redirectTo: location.origin + location.pathname } });
+  if (r.error) { toast(friendly(r.error), 'err'); el.disabled = false; }
+};
+ACTS.togglePw = (el) => { const i = $('#pw'); if (!i) return; const show = i.type === 'password'; i.type = show ? 'text' : 'password'; el.setAttribute('aria-label', show ? 'Ocultar contraseña' : 'Mostrar contraseña'); el.innerHTML = ico(show ? 'eyeoff' : 'eye', 18); };
+const BENEFITS = [['sparkle', 'Se adapta a tu forma de estudiar', `Unas preguntas y ajustamos tu plan, tus sesiones y cómo te explica ${CONFIG.TUTOR}.`], ['camera', 'Tus apuntes se vuelven juego', 'Foto de tu cuaderno y la IA crea niveles y un examen final.'], ['book', 'Hecha para México', 'En español, con precios en pesos y pago en OXXO.'], ['lock', 'Sin anuncios y tus datos son tuyos', 'Descarga o elimina tu información cuando quieras.']];
+function showAuth(mode = S.authMode || 'login', msg = '', kind = 'info') {
+  const lm = location.hash.match(/^#\/legal\/(\w+)/); if (lm) return showLegalPage(lm[1]);
+  S.authMode = mode; document.body.className = 'noshell'; $('#boot').hidden = true; $('#shell').hidden = true; const a = authBox(); a.hidden = false;
+  const reg = mode === 'register', forgot = mode === 'forgot';
+  const title = forgot ? 'Recupera tu contraseña' : reg ? 'Crea tu cuenta' : 'Bienvenido de nuevo', sub = forgot ? 'Te enviamos un enlace a tu correo.' : reg ? 'Empieza gratis. Toma menos de un minuto.' : 'Entra para seguir con tu plan de estudio.';
+  a.innerHTML = `<div class="authgrid">
+  <aside class="brandp only-d"><div class="bp-top row g12">${LOGO(44)}<strong>StudyFlow MX</strong></div><div class="bp-mid"><h2>Estudia a tu manera.</h2><p>Tu plan, tus apuntes y tu tutor con IA en un solo lugar.</p>${BENEFITS.map(([i, t, b]) => `<div class="row top g12 bp-b">${ico(i, 22, '#fff')}<div><strong>${t}</strong><div class="small">${b}</div></div></div>`).join('')}</div><div class="bp-bot small">Para estudiantes de secundaria y bachillerato en México.</div></aside>
+  <main class="authmain"><div class="mhead only-m row g12">${LOGO(36)}<strong>StudyFlow MX</strong></div>
+  <div class="authcard"><h1>${title}</h1><p class="muted">${sub}</p>
+  ${forgot ? '' : '<div id="social"></div>'}
+  ${forgot ? '' : `<div class="seg" role="tablist"><button type="button" role="tab" aria-selected="${!reg}" data-act="authMode" data-v="login">Iniciar sesión</button><button type="button" role="tab" aria-selected="${reg}" data-act="authMode" data-v="register">Crear cuenta</button></div>`}
+  <form id="authform" novalidate>${reg ? '<label>Nombre<input name="name" autocomplete="name" maxlength="80" placeholder="Tu nombre"></label>' : ''}<label>Correo<input name="email" type="email" autocomplete="email" inputmode="email" autocapitalize="none" placeholder="tucorreo@ejemplo.com"></label>
+  ${forgot ? '' : `<label>Contraseña<div class="pwrow"><input id="pw" name="pw" type="password" autocomplete="${reg ? 'new-password' : 'current-password'}" placeholder="${reg ? 'Mínimo 10 caracteres' : 'Tu contraseña'}"><button type="button" class="ib" data-act="togglePw" aria-label="Mostrar contraseña">${ico('eye', 18)}</button></div>${reg ? '<div class="meter" aria-hidden="true"><i id="meter"></i></div><span class="small muted" id="meterl">Mínimo 10 caracteres, con letras y números.</span>' : ''}</label>`}
+  ${reg ? `<label class="row sw"><input type="checkbox" name="ok"><span class="small">Acepto los <a href="#/legal/terms" target="_blank" rel="noopener">términos</a>, el <a href="#/legal/privacy" target="_blank" rel="noopener">aviso de privacidad</a> y la <a href="#/legal/refunds" target="_blank" rel="noopener">política de cancelación y reembolsos</a>, y soy mayor de edad o tengo permiso de mi mamá, papá o tutor.</span></label>` : ''}
+  <div class="${kind === 'ok' ? 'okt' : 'derr'}" role="alert" id="authmsg">${esc(msg)}</div><button class="btn lg" id="authgo">${forgot ? 'Enviar enlace' : reg ? 'Crear cuenta' : 'Entrar'}</button>
+  ${!reg && !forgot ? '<button type="button" class="btn ghost sm" data-act="authMode" data-v="forgot">¿Olvidaste tu contraseña?</button>' : ''}${forgot ? '<button type="button" class="btn ghost sm" data-act="authMode" data-v="login">Volver a iniciar sesión</button>' : ''}</form></div>
+  <details class="only-m benefits"><summary>¿Por qué StudyFlow MX?</summary>${BENEFITS.map(([i, t, b]) => `<div class="row top g12">${ico(i, 20, 'var(--brand)')}<div><strong>${t}</strong><div class="small muted">${b}</div></div></div>`).join('')}</details>
+  <footer class="small muted center authfoot"><a href="#/legal/terms">Términos</a> · <a href="#/legal/privacy">Privacidad</a> · <a href="#/legal/refunds">Cancelación y reembolsos</a> · <a href="#/legal/ai">Reglas de IA</a></footer></main></div>`;
+  $('#authform').addEventListener('submit', (e) => { e.preventDefault(); authSubmit(mode, new FormData(e.target)); });
+  if (reg) $('#pw').addEventListener('input', (e) => { const v = e.target.value, sc = (v.length >= 10 ? 1 : 0) + (/[a-zA-Z]/.test(v) && /[0-9]/.test(v) ? 1 : 0) + (v.length >= 14 || /[^a-zA-Z0-9]/.test(v) ? 1 : 0); const m = $('#meter'); m.style.width = v ? `${Math.max(1, sc) * 33.3}%` : '0'; m.className = sc >= 3 ? 's3' : sc === 2 ? 's2' : 's1'; $('#meterl').textContent = !v ? 'Mínimo 10 caracteres, con letras y números.' : sc >= 3 ? 'Contraseña fuerte' : sc === 2 ? 'Aceptable: añade más caracteres' : 'Débil'; });
+  if (S.providers === undefined) { S.providers = null; loadProviders().then((p) => { S.providers = p; renderSocial(); }); } else renderSocial();
+}
+ACTS.authMode = (el) => showAuth(el.dataset.v);
+async function authSubmit(mode, fd) {
+  const email = (fd.get('email') || '').trim(), pw = fd.get('pw') || '', msg = (m, k) => { const n = $('#authmsg'); n.textContent = m; n.className = k === 'ok' ? 'okt' : 'derr'; }, btn = $('#authgo'), label = btn.textContent;
+  if (!/^\S+@\S+\.\S+$/.test(email)) return msg('Escribe un correo válido.');
+  const redirectTo = location.origin + location.pathname;
+  btn.disabled = true; btn.textContent = mode === 'login' ? 'Entrando…' : mode === 'register' ? 'Creando cuenta…' : 'Enviando…';
+  try {
+    if (mode === 'forgot') { await sb.auth.resetPasswordForEmail(email, { redirectTo }).catch(() => undefined); return msg('Si ese correo tiene una cuenta, te enviamos un enlace para crear una contraseña nueva.', 'ok'); }
+    if (mode === 'register') {
+      const name = (fd.get('name') || '').trim(); if (!name) return msg('Escribe tu nombre.'); const pe = validatePassword(pw, email); if (pe) return msg(pe); if (!fd.get('ok')) return msg('Para crear tu cuenta acepta los términos y el aviso de privacidad.');
+      const r = await sb.auth.signUp({ email, password: pw, options: { emailRedirectTo: redirectTo, data: { display_name: name, terms_accepted_at: new Date().toISOString(), terms_version: LEGAL_VERSION, guardian_permission_confirmed: true } } });
+      if (r.error) return msg(friendly(r.error)); if (!r.data.session) return showAuth('login', 'Te enviamos un correo para confirmar tu cuenta. Después inicia sesión.', 'ok'); return;
+    }
+    if (!pw) return msg('Escribe tu contraseña.');
+    const wait = Math.ceil((S.lockedUntil - Date.now()) / 1000); if (wait > 0) return msg(`Demasiados intentos. Espera ${wait} segundos.`);
+    const r = await sb.auth.signInWithPassword({ email, password: pw });
+    if (r.error) { S.failures++; S.lockedUntil = Date.now() + cooldownSeconds(S.failures) * 1000; return msg(friendly(r.error)); } S.failures = 0;
+  } catch (e) { msg(friendly(e)); } finally { if (btn && btn.isConnected) { btn.disabled = false; btn.textContent = label; } }
+}
+/* People who sign in with Google/Apple skip the sign-up form, so they must accept the terms before using the app. */
+function showConsent() {
+  document.body.className = 'noshell'; $('#boot').hidden = true; $('#shell').hidden = true; const a = authBox(); a.hidden = false; const meta = (S.user && S.user.user_metadata) || {};
+  a.innerHTML = `<div class="authgrid one"><main class="authmain"><div class="mhead row g12">${LOGO(36)}<strong>StudyFlow MX</strong></div><div class="authcard"><h1>Un paso más${meta.full_name || meta.name ? `, ${esc(String(meta.full_name || meta.name).split(' ')[0])}` : ''}</h1><p class="muted">Antes de empezar, necesitamos tu aceptación.</p>
+  <label class="row sw"><input type="checkbox" id="cok"><span class="small">Acepto los <a href="#/legal/terms" target="_blank" rel="noopener">términos</a>, el <a href="#/legal/privacy" target="_blank" rel="noopener">aviso de privacidad</a> y la <a href="#/legal/refunds" target="_blank" rel="noopener">política de cancelación y reembolsos</a>, y soy mayor de edad o tengo permiso de mi mamá, papá o tutor.</span></label><div class="derr" id="cmsg" role="alert"></div><button class="btn lg" data-act="consentOk">Aceptar y continuar</button><button class="btn ghost sm" data-act="consentNo">No acepto, salir</button></div></main></div>`;
+}
+ACTS.consentOk = async () => {
+  if (!$('#cok').checked) return ($('#cmsg').textContent = 'Para continuar acepta los términos y el aviso de privacidad.');
+  const stamp = { terms_accepted_at: new Date().toISOString(), terms_version: LEGAL_VERSION, guardian_permission_confirmed: true };
+  const r = await sb.auth.updateUser({ data: stamp }); if (r.error) return ($('#cmsg').textContent = friendly(r.error));
+  S.user = { ...S.user, user_metadata: { ...(S.user.user_metadata || {}), ...stamp } };
+  try { const name = String(S.user.user_metadata.full_name || S.user.user_metadata.name || '').trim().slice(0, 80); const p = await A.profile.get(); if (!p.display_name && name) await A.profile.update({ display_name: name }); } catch { /* the name is optional */ }
+  await enter();
+};
+ACTS.consentNo = async () => { await sb.auth.signOut(); };
+function showRecovery() {
+  document.body.className = 'noshell'; $('#boot').hidden = true; $('#shell').hidden = true; const a = authBox(); a.hidden = false;
+  a.innerHTML = `<div class="authgrid one"><main class="authmain"><div class="mhead row g12">${LOGO(36)}<strong>StudyFlow MX</strong></div><div class="authcard"><h1>Crea tu nueva contraseña</h1><form id="rform" novalidate><p class="muted">Usa al menos 10 caracteres, con letras y números.</p><label>Contraseña nueva<input name="a" type="password" autocomplete="new-password"></label><label>Repite la contraseña<input name="b" type="password" autocomplete="new-password"></label><div class="derr" id="rmsg" role="alert"></div><button class="btn lg">Guardar contraseña</button></form></div></main></div>`;
+  $('#rform').addEventListener('submit', async (e) => { e.preventDefault(); const fd = new FormData(e.target), m = $('#rmsg'); const v = validatePassword(fd.get('a') || '', (S.user && S.user.email) || ''); if (v) return (m.textContent = v); if (fd.get('a') !== fd.get('b')) return (m.textContent = 'Las contraseñas no coinciden.');
+    const r = await sb.auth.updateUser({ password: fd.get('a') }); if (r.error) return (m.textContent = friendly(r.error)); S.recovery = false; toast('Contraseña actualizada'); await enter(); });
+}
+
+/* ---------- SHELL, ROUTER, BOOT ---------- */
+const NAV = [['home', 'Inicio', 'home'], ['tasks', 'Tareas', 'tasks'], ['notes', 'Apuntes', 'camera'], ['tutor', CONFIG.TUTOR, 'sparkle'], ['study', 'Estudio', 'cards'], ['profile', 'Perfil', 'user']];
+const SIDE_EXTRA = [['focus', 'Enfoque', 'target'], ['premium', 'Premium', 'crown']];
+function showShell() { $('#boot').hidden = true; authBox().hidden = true; $('#shell').hidden = false; document.body.className = ''; S.shown = true; }
+async function render() {
+  const route = (location.hash.replace(/^#\/?/, '') || 'home'); if (/^access_token|type=recovery/.test(route)) return;
+  const [view, ...args] = route.split('/'); S.route = route;
+  if (view !== 'game' && view !== 'quizedit') { /* keep game state only while inside a game */ if (view !== 'game') S.g = view === 'game' ? S.g : null; }
+  if (view !== 'deck') S.sd = null; if (view !== 'onboarding') S.ob = null;
+  const group = { game: 'study', deck: 'study', quizedit: 'study' }[view] || view;
+  $('#nav').innerHTML = `<div class="brand">${LOGO(30)}<span>StudyFlow MX</span></div>` + [...NAV, ...SIDE_EXTRA.map((x) => [...x, 'side'])].map(([k, l, i, side]) => `<button class="${side ? 'sideonly' : ''}" data-act="go" data-v="${k}" ${group === k ? 'aria-current="page"' : ''}>${ico(i, 22)}<span>${esc(l)}</span></button>`).join('');
+  const main = $('#main'), fn = VIEWS[view] || VIEWS.home; AFTER.length = 0;
+  const searchFocused = document.activeElement && document.activeElement.id === 'q';
+  if (!main.firstChild || S.lastView !== view) main.innerHTML = `<div class="page">${loadingHtml}</div>`; S.lastView = view;
+  try { const html = await fn(args); if (S.route !== route) return; main.innerHTML = `<div class="page">${html}${legalFooter()}</div>`; if (searchFocused) { const q = $('#q'); if (q) { q.focus(); q.setSelectionRange(q.value.length, q.value.length); } } for (const f of AFTER.splice(0)) f(); }
+  catch (e) { main.innerHTML = `<div class="page">${errHtml(friendly(e))}</div>`; }
+}
+ACTS.go = (el) => { location.hash = '#/' + el.dataset.v; };
+async function checkOnboarded() { const r = await sb.from('study_profiles').select('user_id').maybeSingle(); return r.error ? true : !!r.data; } // fails open: never lock anyone out
+async function enter() {
+  if (!((S.user && S.user.user_metadata) || {}).terms_accepted_at) return showConsent();
+  try { S.onboarded = await checkOnboarded(); } catch { S.onboarded = true; }
+  A.profile.touch().catch(() => undefined); showShell();
+  if (S.onboarded === false && !/^#\/onboarding/.test(location.hash)) location.hash = '#/onboarding'; else render();
+}
+async function onAuth(event, session) {
+  if (event === 'PASSWORD_RECOVERY') { S.recovery = true; S.user = session ? session.user : null; return showRecovery(); }
+  if (event === 'TOKEN_REFRESHED' || event === 'USER_UPDATED') return;
+  const user = session ? session.user : null;
+  if (event === 'SIGNED_IN' && S.user && user && S.user.id === user.id && S.shown) return; // tab regained focus
+  S.bootDone = true; S.user = user; if (!user) { if (!/^#\/legal\//.test(location.hash)) history.replaceState(null, '', location.pathname + location.search); S.shown = false; S.profile = S.method = null; S.onboarded = null; clearUserState(); return showAuth(); }
+  if (S.recovery) return; await enter();
+}
+/* Privacy on shared devices: nothing from the previous person (chat, search, selections, game state) survives sign-out. */
+function clearUserState() { S.authMode = 'login'; S.tf = { status: 'pending', search: '' }; S.nsel = new Set(); S.nsub = null; S.chat = { msgs: [], files: [], busy: false, problem: null }; S.gc = S.g = S.sd = S.ob = null; S.subjects = S.taskCache = S.examCache = S.deckCards = S.notesCache = S.editQs = S.quota = null; S.cal = { y: new Date().getFullYear(), m: new Date().getMonth(), sel: today() }; clearInterval(S.tick); S.timer = { phase: 'idle', start: 0, end: 0 }; const m = $('#main'); if (m) m.innerHTML = ''; S.lastView = null; }
+function legacyPath() { const p = location.pathname.replace(/\/index\.html$/, ''); if (/\/premium\/?$/.test(p)) { history.replaceState(null, '', location.pathname.replace(/premium\/?$/, '') + location.search + '#/premium'); } }
+document.addEventListener('click', (e) => { const t = e.target.closest('[data-act]'); if (!t || t.disabled) return; const fn = ACTS[t.dataset.act]; if (fn) { e.preventDefault(); Promise.resolve(fn(t, e)).catch((er) => toast(friendly(er), 'err')); } });
+document.addEventListener('change', (e) => { if (e.target.matches && e.target.matches('input[type=file][data-file]')) handleNoteFile(e.target); });
+let qTimer; document.addEventListener('input', (e) => { if (e.target.id === 'q') { clearTimeout(qTimer); qTimer = setTimeout(() => { S.tf.search = e.target.value.slice(0, 80); render(); }, 300); } });
+document.addEventListener('keydown', (e) => { if (e.target.id === 'chatin' && e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); ACTS.chatSend(); } });
+window.addEventListener('hashchange', () => { if (S.user && S.shown) render(); else if (!S.user && S.bootDone && !S.recovery) { const m = location.hash.match(/^#\/legal\/(\w+)/); if (m) showLegalPage(m[1]); } });
+const loadScript = (url) => new Promise((res) => { const el = document.createElement('script'); el.src = url; el.crossOrigin = 'anonymous'; el.onload = () => res(true); el.onerror = () => res(false); document.head.appendChild(el); });
+async function boot() {
+  // If the pinned library did not load, try the CDN's latest 2.x once before giving up.
+  if (!window.supabase) await loadScript('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js');
+  if (!window.supabase || !window.supabase.createClient) { $('#boot').innerHTML = '<div class="card center"><p>No se pudo cargar la librería de la app. Revisa tu internet y recarga la página.</p></div>'; return; }
+  legacyPath();
+  sb = window.supabase.createClient(CONFIG.URL, CONFIG.KEY, { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true } });
+  sb.auth.onAuthStateChange((event, session) => { setTimeout(() => onAuth(event, session).catch((er) => toast(friendly(er), 'err')), 0); });
+}
+boot();
+
+</script>
+</body>
+</html>
